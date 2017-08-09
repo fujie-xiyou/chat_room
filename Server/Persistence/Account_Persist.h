@@ -27,9 +27,10 @@ int Account_Perst_AddUser(const char * name , const char password);
 
 
  /*
-  * 检测用户名密码是否匹配
+  * 检测用户名(uid)密码是否匹配
   * 匹配返回1,不匹配返回0
+  * uid通过Account_Perst_IsUserName()获得
   */
-int Account_Perst_MatchUserAndPassword(const char * name , const char * password);
+int Account_Perst_MatchUserAndPassword(int uid , const char * password);
 
 
