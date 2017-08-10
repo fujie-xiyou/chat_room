@@ -19,22 +19,24 @@ online_t *OnlineList;
 static char buf[1024];
 void * thread(void *arg){
     int client_fd = (int)arg;
-    if(recv(client_fd , (void *)buf , sizeof(buf) , 0) < 0){
-        perror("recv");
-        exit(0);
-    }
-    cJSON *root = cJSON_Parse(buf);
-    cJSON *item = cJSON_GetObjectItem(root,"type");
-    switch(item -> valuestring[0]){
-        item = cJSON_GetObjectItem(root,"msg");
-        case 'L' :
-            Account_Srv_Login(client_fd , item -> valuestring);
-        case 'S' :
-            Account_Srv_SignIn(client_fd , item -> valuestring);
-        case 'C' :
-            //Chat_Srv_(item -> valuestring);
-        case 'F' :
-            printf("敬请期待\n");
+    while(1){
+        if(recv(client_fd , (void *)buf , sizeof(buf) , 0) < 0){
+            perror("recv");
+            exit(0);
+        }
+        cJSON *root = cJSON_Parse(buf);
+        cJSON *item = cJSON_GetObjectItem(root,"type");
+        switch(item -> valuestring[0]){
+            item = cJSON_GetObjectItem(root,"msg");
+            case 'L' :
+                Account_Srv_Login(client_fd , item -> valuestring);
+            case 'S' :
+                Account_Srv_SignIn(client_fd , item -> valuestring);
+            case 'C' :
+                //Chat_Srv_(item -> valuestring);
+            case 'F' :
+                printf("敬请期待\n");
+        }
     }
     return NULL;
 }
@@ -77,8 +79,8 @@ void Connect(){
             perror("accept");
             exit(0);
         }
-        
-        
+        pthread_t thid;
+        pthread_create(&thid , NULL , thread ,(void *)client_fd);
     }
     
 }

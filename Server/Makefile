@@ -11,7 +11,7 @@ C_FLAGS = -DDEBUG -c -Wall -Wextra -ggdb -I.
 
 all: $(C_OBJECTS) 
 	@echo compile...
-	$(CC) $(C_OBJECTS) -lm -L/usr/lib64/mysql -lmysqlclient -o $(PROGRAM)
+	$(CC) $(C_OBJECTS) -lm -lpthread -L/usr/lib64/mysql -lmysqlclient -o $(PROGRAM)
 
 .c.o:
 	@echo link$< ...

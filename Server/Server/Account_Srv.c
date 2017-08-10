@@ -14,7 +14,7 @@
 #include "../Persistence/Account_Persist.h"
 
 
-int Account_Srv_SignIn(int sock_id , char * JSON){
+int Account_Srv_SignIn(int sock_fd , char * JSON){
     char name[20] , password[20];
     cJSON *root = cJSON_Parse(JSON);
     cJSON *item = cJSON_GetObjectItem(root , "name");
@@ -29,7 +29,7 @@ int Account_Srv_SignIn(int sock_id , char * JSON){
         item = cJSON_CreateString("用户名已存在");
         cJSON_AddItemToObject(root , "reason" , item);
         char *out = cJSON_Print(root);
-        if(send(sock_id , (void *)out , strlen(out)+1 , 0) < 0){
+        if(send(sock_fd , (void *)out , strlen(out)+1 , 0) < 0){
             //出错 日志处理
         }
         cJSON_Delete(root);
@@ -39,7 +39,7 @@ int Account_Srv_SignIn(int sock_id , char * JSON){
             item = cJSON_CreateBool(1);
             cJSON_AddItemToObject(root , "res" , item);
             char *out = cJSON_Print(root);
-            if(send(sock_id , (void *)out , strlen(out)+1 , 0) < 0){
+            if(send(sock_fd , (void *)out , strlen(out)+1 , 0) < 0){
                 //出错,记录日志
             }
             return 1;
@@ -49,7 +49,7 @@ int Account_Srv_SignIn(int sock_id , char * JSON){
         item = cJSON_CreateString("服务器异常");
         cJSON_AddItemToObject(root , "reason" , item);
         char *out = cJSON_Print(root);
-        if(send(sock_id , (void *)out , strlen(out)+1 , 0) < 0){
+        if(send(sock_fd , (void *)out , strlen(out)+1 , 0) < 0){
             //出错 日志处理
         }
         cJSON_Delete(root);
@@ -59,6 +59,6 @@ int Account_Srv_SignIn(int sock_id , char * JSON){
 }
 
 
-int Account_Srv_Login(int sock_id , char *JSON){
-    
+int Account_Srv_Login(int sock_fd , char *JSON){
+    return 0;
 }
