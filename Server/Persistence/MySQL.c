@@ -5,8 +5,8 @@
 	> Created Time: 2017年08月09日 星期三 09时09分18秒
  ************************************************************************/
 
-#include<stdio.h>
-#include<"MySQL.h">
+#include <stdio.h>
+#include "MySQL.h"
 
 MYSQL * mysql;
 MYSQL_RES * res;
@@ -21,7 +21,7 @@ int MySQL_Connect(){
 }
 
 
-int MySQL_Close(){
+void MySQL_Close(){
     mysql_free_result(res);
     mysql_close(mysql);
 }

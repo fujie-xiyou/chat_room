@@ -7,7 +7,6 @@
 
 #ifndef _ACCOUNT_PERSIST_H
 #define _ACCOUNT_PERSIST_H
-#endif
 
 
 /*
@@ -23,7 +22,7 @@ int Account_Perst_IsUserName(const char * name);
  * 参数传入一个用户名和密码
  * 写入成功返回1,否则返回0
  */
-int Account_Perst_AddUser(const char * name , const char password);
+int Account_Perst_AddUser(const char * name , const char *password);
 
 
  /*
@@ -34,3 +33,4 @@ int Account_Perst_AddUser(const char * name , const char password);
 int Account_Perst_MatchUserAndPassword(int uid , const char * password);
 
 
+#endif

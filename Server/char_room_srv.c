@@ -1,14 +1,13 @@
 /*************************************************************************
-	>    File Name: Account_Ser.h
+	>    File Name: char_room_srv.c
 	>       Author: fujie
 	>         Mail: fujie.me@qq.com
-	> Created Time: 2017年08月09日 星期三 09时34分40秒
+	> Created Time: 2017年08月10日 星期四 15时17分19秒
  ************************************************************************/
 
-#ifndef _ACCOUNT_SER_H
-#define _ACCOUNT_SER_H
-#endif
+#include<stdio.h>
+#include"./Server/Connect.h"
 
-int Account_Srv_IsUserName(){
-    
+int main(){
+    Connect();
 }

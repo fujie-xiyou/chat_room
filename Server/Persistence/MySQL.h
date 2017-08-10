@@ -7,7 +7,7 @@
 
 #ifndef _MYSQL_H
 #define _MYSQL_H
-#endif
+
 
 #include<mysql/mysql.h>
 
@@ -20,6 +20,7 @@ int MySQL_Connect();
 /*
  * 清理资源,关闭连接
  */
-int MySQL_Close();
+void MySQL_Close();
 
 
+#endif

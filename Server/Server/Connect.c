@@ -1,39 +1,42 @@
-/*************************************************************************
+/************************************************************************
 	>    File Name: Connect.c
 	>       Author: fujie
 	>         Mail: fujie.me@qq.com
 	> Created Time: 2017年08月09日 星期三 14时19分48秒
  ************************************************************************/
 
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
-#include"Connect.h"
-#include<unistd.h>
-#include<pthread.h>
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "Connect.h"
+#include <unistd.h>
+#include <pthread.h>
+#include "List.h"
+#include "Account_Srv.h"
 #define LISTEN_NUM 12 //连接请求队列长度
 
-char buf[1024];
+online_t *OnlineList;
+static char buf[1024];
 void * thread(void *arg){
     int client_fd = (int)arg;
-    if(recv(client_fd , (void *)buf , sizeof(buf)) < 0){
+    if(recv(client_fd , (void *)buf , sizeof(buf) , 0) < 0){
         perror("recv");
         exit(0);
     }
-    cJSON *root = cJSON_Prase(buf);
-    cJSON *item = cJSON_GetObjectltem(root,"type");
+    cJSON *root = cJSON_Parse(buf);
+    cJSON *item = cJSON_GetObjectItem(root,"type");
     switch(item -> valuestring[0]){
-        item = cJSON_GetObjectltem(root,"msg");
+        item = cJSON_GetObjectItem(root,"msg");
         case 'L' :
-            Account_Srv_Login(item -> valuestring);
+            Account_Srv_Login(client_fd , item -> valuestring);
         case 'S' :
-            Account_Srv_SignIn(item -> valuestring);
+            Account_Srv_SignIn(client_fd , item -> valuestring);
         case 'C' :
-            Account_Srv_Chat(item -> valuestring);
+            //Chat_Srv_(item -> valuestring);
         case 'F' :
-            
+            printf("敬请期待\n");
     }
+    return NULL;
 }
 
 
@@ -42,7 +45,7 @@ void Connect(){
     int client_fd;
     int len;
     int optval;
-
+    List_Init(OnlineList , online_t);
     struct sockaddr_in serv_addr , client_addr;
     len = sizeof(struct sockaddr_in);
     memset(&serv_addr , 0 ,len);
@@ -56,7 +59,7 @@ void Connect(){
         exit(0);
     }
     optval = 1;
-    if(socksetopt(sock_fd , SOL_SOCKET , SO_REUSEADDR , (void *)&optval , sizeof(int)) < 0){
+    if(setsockopt(sock_fd , SOL_SOCKET , SO_REUSEADDR , (void *)&optval , sizeof(int)) < 0){
         perror("socksetopt");
         exit(0);
     }
@@ -74,6 +77,7 @@ void Connect(){
             perror("accept");
             exit(0);
         }
+        
         
     }
     
