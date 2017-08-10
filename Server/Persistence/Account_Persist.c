@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "Account_Persist.h"
 #include "MySQL.h"
 extern MYSQL * mysql;
