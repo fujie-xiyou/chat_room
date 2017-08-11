@@ -6,10 +6,14 @@
  ************************************************************************/
 
 #include<stdio.h>
+#include<unistd.h>
 #include "./View/Main_UI.h"
 #include "./Service/Connect.h"
+extern int sock_fd;
 int gl_uid;//记录登录用户的uid
 int main(){
     Connect();
     Main_UI_Hello();
+    //printf("sock_fd = %d\n",sock_fd);
+    close(sock_fd);
 }

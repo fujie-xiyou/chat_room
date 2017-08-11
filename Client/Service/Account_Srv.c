@@ -39,12 +39,12 @@ int Account_Srv_SignIn(const char * name ,const char * password){
     item = cJSON_GetObjectItem(root,"res");
     int res = item -> valueint;
     if(res == 1) {
-        printf("注册成功!按任意键继续\n");
+        printf("注册成功!按任意键继续");
         getchar();
         return 1;
     }else{
         item = cJSON_GetObjectItem(root,"reason");
-        printf("注册失败: %s\n",item -> valuestring);
+        printf("注册失败: %s",item -> valuestring);
         getchar();
         return 0;
     }
