@@ -8,9 +8,9 @@
 #include <stdio.h>
 #include "MySQL.h"
 
-MYSQL * mysql;
-MYSQL_RES * res;
-MYSQL_ROW row;
+extern MYSQL * mysql;
+extern MYSQL_RES * res;
+extern MYSQL_ROW row;
 
 int MySQL_Connect(){
     mysql = mysql_init(NULL);

@@ -24,6 +24,7 @@ int Account_Srv_SignIn(int sock_fd , char * JSON){
     cJSON_Delete(root);
     root = cJSON_CreateObject();
     if(Account_Perst_IsUserName(name)){
+        printf("\nname = %s\npass = %s\n",name,password);
         item = cJSON_CreateBool(0);
         cJSON_AddItemToObject(root , "res" , item);
         item = cJSON_CreateString("用户名已存在");
