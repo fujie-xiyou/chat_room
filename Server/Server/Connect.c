@@ -20,22 +20,31 @@ static char buf[1024];
 void * thread(void *arg){
     int client_fd = (int)arg;
     while(1){
-        if(recv(client_fd , (void *)buf , sizeof(buf) , 0) < 0){
+        if(recv(client_fd , (void *)buf , sizeof(buf) , 0) <= 0){
             perror("recv");
-            exit(0);
+            //exit(0);
+            break;
         }
+        printf("buf = %s\n",buf);
         cJSON *root = cJSON_Parse(buf);
         cJSON *item = cJSON_GetObjectItem(root,"type");
         switch(item -> valuestring[0]){
-            item = cJSON_GetObjectItem(root,"msg");
             case 'L' :
+                item = cJSON_GetObjectItem(root,"msg");
                 Account_Srv_Login(client_fd , item -> valuestring);
+                break;
             case 'S' :
+                item = cJSON_GetObjectItem(root,"msg");
                 Account_Srv_SignIn(client_fd , item -> valuestring);
+                break;
             case 'C' :
+                item = cJSON_GetObjectItem(root,"msg");
                 //Chat_Srv_(item -> valuestring);
+                break;
             case 'F' :
+                item = cJSON_GetObjectItem(root,"msg");
                 printf("敬请期待\n");
+                break;
         }
     }
     return NULL;

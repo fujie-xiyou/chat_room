@@ -8,7 +8,6 @@
 #ifndef _ACCOUNT_PERSIST_H
 #define _ACCOUNT_PERSIST_H
 
-
 /*
  * 检测一个用户名是否存在
  * 参数传入一个用户名

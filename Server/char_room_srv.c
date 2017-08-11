@@ -7,7 +7,13 @@
 
 #include<stdio.h>
 #include"./Server/Connect.h"
-
+#include "./Persistence/MySQL.h"
+MYSQL *mysql;
+MYSQL_RES *res;
+MYSQL_ROW row;
 int main(){
+    if(MySQL_Connect() == 0){
+        printf("数据库连接失败\n");
+    }
     Connect();
 }
