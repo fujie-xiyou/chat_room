@@ -28,7 +28,6 @@ int Account_Perst_IsUserName(const char * name){
 }
 
 int Account_Perst_AddUser(const char *name , const char *password){
-    printf("我来了:\nname = %s\npass = %s\n",name ,password);
     sprintf(SQL,"INSERT INTO account VALUES (NULL , '%s' , md5('%s'))", name , password);
     if(mysql_real_query(mysql , SQL , strlen(SQL))){
         return 0;

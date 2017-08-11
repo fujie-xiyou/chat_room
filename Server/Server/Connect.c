@@ -25,7 +25,6 @@ void * thread(void *arg){
             //exit(0);
             break;
         }
-        printf("buf = %s\n",buf);
         cJSON *root = cJSON_Parse(buf);
         cJSON *item = cJSON_GetObjectItem(root,"type");
         switch(item -> valuestring[0]){
