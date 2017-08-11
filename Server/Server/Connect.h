@@ -2,7 +2,6 @@
 
 #ifndef _CONNECT_H
 #define _CONNECT_H
-#endif
 
 #include<string.h>
 #include<stdlib.h>
@@ -46,3 +45,4 @@ void Connect();
  * 处理JSON消息
  */
 //int
+#endif
