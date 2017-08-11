@@ -9,6 +9,18 @@
 #define _ACCOUNT_SER_H
 #include "cJSON.h"
 #include "List.h"
+
+/*
+ * 存储在线用户的uid以及对应的socket描述符
+ * 带头结点的单链表结构
+ */
+ typedef struct online{
+     int uid;
+     int sock_fd;
+     struct online *next;
+ } online_t;
+
+
 int Account_Srv_SignIn(int sock_fd , char * JSON);
 
 int Account_Srv_Login(int sock_fd ,char * JSON);

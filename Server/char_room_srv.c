@@ -11,6 +11,7 @@
 MYSQL *mysql;
 MYSQL_RES *res;
 MYSQL_ROW row;
+int gl_uid;//记录登录用户的uid
 int main(){
     if(MySQL_Connect() == 0){
         printf("数据库连接失败\n");
