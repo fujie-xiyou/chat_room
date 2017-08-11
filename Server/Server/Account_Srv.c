@@ -19,7 +19,7 @@ int Account_Srv_SignIn(int sock_fd , char * JSON){
     cJSON *root = cJSON_Parse(JSON);
     cJSON *item = cJSON_GetObjectItem(root , "name");
     strcpy(name,item -> valuestring);
-    item = cJSON_GetObjectItem(root , password);
+    item = cJSON_GetObjectItem(root , "password");
     strcpy(password , item -> valuestring);
     cJSON_Delete(root);
     root = cJSON_CreateObject();
