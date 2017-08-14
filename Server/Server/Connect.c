@@ -29,19 +29,32 @@ void * thread(void *arg){
         cJSON *item = cJSON_GetObjectItem(root,"type");
         switch(item -> valuestring[0]){
             case 'L' :
-                item = cJSON_GetObjectItem(root,"msg");
+                //登录
+                item = cJSON_GetObjectItem(root,"data");
                 Account_Srv_Login(client_fd , item -> valuestring);
                 break;
             case 'S' :
-                item = cJSON_GetObjectItem(root,"msg");
+                //注册
+                item = cJSON_GetObjectItem(root,"data");
                 Account_Srv_SignIn(client_fd , item -> valuestring);
                 break;
+            case 'A' :
+                //添加好友
+                item = cJSON_GetObjectItem(root,"data");
+                //Friends_Srv_Add(client_fd, item -> valuestring);
+                break;
+            case 'G' :
+                //获取好友列表
+                item = cJSON_GetObjectItem(root ,"data");
+                //Friends_Srv_GetList(client_fd ,item -> valuestring);
             case 'C' :
-                item = cJSON_GetObjectItem(root,"msg");
+                //聊天
+                item = cJSON_GetObjectItem(root,"data");
                 //Chat_Srv_(item -> valuestring);
                 break;
             case 'F' :
-                item = cJSON_GetObjectItem(root,"msg");
+                //文件
+                item = cJSON_GetObjectItem(root,"data");
                 printf("敬请期待\n");
                 break;
         }
@@ -61,7 +74,7 @@ void Connect(){
     memset(&serv_addr , 0 ,len);
     memset(&client_addr , 0 , len);
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(520);
+    serv_addr.sin_port = htons(1314);
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     sock_fd = socket(AF_INET , SOCK_STREAM , 0);
     if(sock_fd < 0) {

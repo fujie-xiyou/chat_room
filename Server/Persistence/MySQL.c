@@ -8,9 +8,7 @@
 #include <stdio.h>
 #include "MySQL.h"
 
-extern MYSQL * mysql;
-extern MYSQL_RES * res;
-extern MYSQL_ROW row;
+MYSQL * mysql;
 
 int MySQL_Connect(){
     mysql = mysql_init(NULL);
@@ -22,6 +20,5 @@ int MySQL_Connect(){
 
 
 void MySQL_Close(){
-    mysql_free_result(res);
     mysql_close(mysql);
 }

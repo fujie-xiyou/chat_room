@@ -8,11 +8,14 @@
 #include<stdio.h>
 #include "./Main_UI.h"
 #include "./Account_UI.h"
-
+extern int gl_uid;
 void Main_UI_Hello(){
     int choice;
     do{
         system("clear");
+        if(gl_uid > 0){
+            Main_UI_Menu();
+        }
         printf(
             "==============================\n"
             " ****欢迎使用葫芦娃聊天室****\n"
@@ -28,7 +31,7 @@ void Main_UI_Hello(){
         fflush(stdin);
         switch(choice){
             case 1:
-                //login
+                gl_uid = Account_UI_Login();
                 break;
             case 2:
                 Account_UI_SignIn();
@@ -38,7 +41,10 @@ void Main_UI_Hello(){
                 break;
             default:
                 break;
-                
         }
     }while(1);
+}
+
+void Main_UI_Menu(){
+    
 }

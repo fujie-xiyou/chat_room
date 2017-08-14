@@ -31,5 +31,9 @@ int Account_Perst_AddUser(const char * name , const char *password);
   */
 int Account_Perst_MatchUserAndPassword(int uid , const char * password);
 
+/*
+ * 填充好友列表结构体中的信息
+ */
+int Account_Perst_GetUserInfo(friends_t * Node);
 
 #endif

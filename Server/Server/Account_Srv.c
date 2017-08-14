@@ -13,7 +13,7 @@
 #include "./Account_Srv.h"
 #include "./List.h"
 #include "../Persistence/Account_Persist.h"
-extern int gl_uid;
+
 extern online_t * OnlineList;
 int Account_Srv_SignIn(int sock_fd ,char * JSON){
     char name[20] , password[20];
@@ -85,17 +85,19 @@ int Account_Srv_Login(int sock_fd ,char *JSON){
         //用户名存在的
         if(Account_Perst_MatchUserAndPassword(uid ,password)){
             //密码对的
-            gl_uid = uid;
             online_t *NewUser = (online_t *)malloc(sizeof(online_t));
             NewUser -> uid =uid;
             NewUser -> sock_fd = sock_fd;
             List_AddHead(OnlineList ,NewUser);
             item = cJSON_CreateBool(1);
             cJSON_AddItemToObject(root , "res" , item);
+            item = cJSON_CreateNumber(uid);
+            cJSON_AddItemToObject(root , "uid" ,item);
             char *out = cJSON_Print(root);
             if(send(sock_fd , (void *)out , strlen(out)+1 , 0) < 0){
                 //出错,记录日志
             }
+            free(out);
             return 1;
         }
         //密码错的

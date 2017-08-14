@@ -17,8 +17,8 @@ void Connect(){
     //char *out;
     memset(&clie_addr , 0 ,sizeof(struct sockaddr_in));
     clie_addr.sin_family = AF_INET;
-    clie_addr.sin_port = htons(520);
-    clie_addr.sin_addr.s_addr = inet_addr("182.254.141.65");
+    clie_addr.sin_port = htons(1314);
+    clie_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
     sock_fd = socket(AF_INET , SOCK_STREAM , 0);
     if(sock_fd < 0){
         perror("socket");

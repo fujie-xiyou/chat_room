@@ -11,4 +11,6 @@
 #include "Connect.h"
 int Account_Srv_SignIn(const char *name , const char *password);
 
+int Account_Srv_Login(const char *name , const char *password);
+
 #endif

@@ -19,3 +19,15 @@ int Account_UI_SignIn(){
     ffflush();
     return Account_Srv_SignIn(name , password);
 }
+
+int Account_UI_Login(){
+    char name[30] , password[30];
+    printf("请输入用户名:");
+    scanf("%s",name);
+    ffflush();
+    printf("请输入密码:");
+    scanf("%s",password);
+    ffflush();
+    return Account_Srv_Login(name , password);
+    
+}
