@@ -91,7 +91,7 @@
 
 #define List_ForEach(list, curPos) 		\
 	 for (   curPos = (list)->next;  	\
-		  	  	  curPos != list;       \
+		  	  	  curPos != NULL;       \
 		  	  	  curPos=curPos->next	\
 	    )
 

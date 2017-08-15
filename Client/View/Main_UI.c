@@ -8,6 +8,8 @@
 #include<stdio.h>
 #include "./Main_UI.h"
 #include "./Account_UI.h"
+#include "./Friends_UI.h"
+#include "../Service/Friends_Srv.h"
 extern int gl_uid;
 void Main_UI_Hello(){
     int choice;
@@ -46,5 +48,9 @@ void Main_UI_Hello(){
 }
 
 void Main_UI_Menu(){
-    
+    Friends_Srv_GetList();
+    while(1){
+        Friends_UI_ShowList();
+        getchar();
+    }
 }

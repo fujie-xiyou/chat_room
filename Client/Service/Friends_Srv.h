@@ -32,4 +32,5 @@ typedef struct friends{
  */
 int Friends_Srv_Add(int fuid);
 
+int Friends_Srv_GetList();
 #endif

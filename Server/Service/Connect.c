@@ -13,6 +13,7 @@
 #include <pthread.h>
 #include "List.h"
 #include "Account_Srv.h"
+#include "./Friends_Srv.h"
 #define LISTEN_NUM 12 //连接请求队列长度
 
 online_t *OnlineList;
@@ -42,7 +43,7 @@ void * thread(void *arg){
                 break;
             case 'G' :
                 //获取好友列表
-                //Friends_Srv_GetList(client_fd ,buf);
+                Friends_Srv_GetList(client_fd ,buf);
             case 'C' :
                 //聊天
                 //Chat_Srv_(buf);

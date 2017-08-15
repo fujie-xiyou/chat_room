@@ -19,4 +19,8 @@
  */
 void Connect();
 
+//暴力锁
+void My_Lock();
+
+void My_Unlock();
 #endif

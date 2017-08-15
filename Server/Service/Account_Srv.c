@@ -47,7 +47,7 @@ int Account_Srv_Out(int sock_fd ,char *JSON){
     cJSON *item = cJSON_GetObjectItem(root ,"uid");
     uid = item -> valueint;
     cJSON_Delete(root);
-    rtn = Account_Srv_ChIsOnline(uid ,0 ,0);
+    rtn = Account_Srv_ChIsOnline(uid ,is_online ,0);
     root = cJSON_CreateObject();
     item = cJSON_CreateString("R");
     cJSON_AddItemToObject(root ,"type" ,item);

@@ -10,8 +10,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
+#include "./Connect.h"
 extern int sock_fd;
-extern pthread_mutex_t recv_mutex;
+//extern pthread_mutex_t mutex;
+//extern pthread_cond_t cond;
+extern int my_mutex;
 extern char massage[1024];
 
 /*
@@ -31,7 +34,8 @@ int Account_Srv_Out(int uid){
     }
     cJSON_Delete(root);
     free(out);
-    pthread_mutex_lock(&recv_mutex);
+    //pthread_mutex_lock(&mutex);
+    //pthread_cond_wait(&cond ,&mutex);
     root = cJSON_Parse(massage);
     item = cJSON_GetObjectItem(root ,"res");
     if(item -> valueint == 0){
@@ -44,6 +48,7 @@ int Account_Srv_Out(int uid){
     }
     cJSON_Delete(root);
     getchar();
+    //pthread_mutex_unlock(&mutex);
     return rtn;
 }
 
@@ -66,7 +71,8 @@ int Account_Srv_SignIn(const char * name ,int sex ,const char * password){
     }
     free(out);
     cJSON_Delete(root);
-    pthread_mutex_lock(&recv_mutex);
+    //pthread_mutex_lock(&mutex);
+    //pthread_cond_wait(&cond ,&mutex);
     root = cJSON_Parse(massage);
     item = cJSON_GetObjectItem(root,"res");
     int res = item -> valueint;
@@ -81,11 +87,11 @@ int Account_Srv_SignIn(const char * name ,int sex ,const char * password){
         rtn = 0;
     }
     cJSON_Delete(root);
-    pthread_mutex_unlock(&recv_mutex);
+    //pthread_mutex_unlock(&mutex);
     return rtn;
 }
 int Account_Srv_Login(const char *name , const char *password){
-    //printf("进入登录函数\n");
+    printf("进入登录函数\n");
     char buf[1024];
     int rtn;
     cJSON *root = cJSON_CreateObject();
@@ -100,9 +106,15 @@ int Account_Srv_Login(const char *name , const char *password){
         perror("send: 请求服务器失败");
         return 0;
     }
-   // printf("登录上锁前\n");
-    pthread_mutex_lock(&recv_mutex);
-    //printf("登录上锁后\n");
+    printf("%s\n",massage);
+    My_Lock();
+    /*
+    printf("登录上锁前\n");
+    pthread_mutex_lock(&mutex);
+    printf("登录上锁后\n");
+    pthread_cond_wait(&cond ,&mutex);
+    printf("登录条件变量为真\n");
+    */
     free(out);
     cJSON_Delete(root);
     root = cJSON_Parse(massage);
@@ -121,9 +133,11 @@ int Account_Srv_Login(const char *name , const char *password){
         
     }
     cJSON_Delete(root);
-    //printf("登录解锁前\n");
-    pthread_mutex_unlock(&recv_mutex);
-    //printf("登录解锁后\n");
+    /*printf("登录解锁前\n");
+    pthread_mutex_unlock(&mutex);
+    pthread_cond_signal(&cond);
+    printf("登录解锁后\n");*/
+    My_Unlock();
     return rtn;
 }
 

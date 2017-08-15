@@ -8,6 +8,7 @@
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
+#include<unistd.h>
 #include "Friends_Srv.h"
 #include "../Persistence/Friends_Persist.h"
 #include "../Persistence/Account_Persist.h"
@@ -27,6 +28,8 @@ int Friends_Srv_GetList(int sock_fd ,const char *JSON){
     friends_t *curPos;
     List_ForEach(FriendsList ,curPos){
         root = cJSON_CreateObject();
+        item = cJSON_CreateString("L");
+        cJSON_AddItemToObject(root ,"type" ,item);
         item = cJSON_CreateNumber(curPos -> uid);
         cJSON_AddItemToObject(root ,"uid" ,item);
         item = cJSON_CreateString(curPos -> name);
@@ -47,10 +50,13 @@ int Friends_Srv_GetList(int sock_fd ,const char *JSON){
             return 0;
         }
         free(out);
+        usleep(50000);
     }
 
     //发送一个uid为0的数据告诉客户端发送完成
     root = cJSON_CreateObject();
+    item = cJSON_CreateString("L");
+    cJSON_AddItemToObject(root ,"type" ,item);
     item = cJSON_CreateNumber(0);
     cJSON_AddItemToObject(root ,"uid" ,item);
     char *out = cJSON_Print(root);
@@ -61,16 +67,18 @@ int Friends_Srv_GetList(int sock_fd ,const char *JSON){
         return 0;
     }
     free(out);
-
+    usleep(50000);
     //销毁链表
     List_Destroy(FriendsList ,friends_t);
 
     root = cJSON_CreateObject();
+    item = cJSON_CreateString("R");
+    cJSON_AddItemToObject(root ,"type" ,item);
     item = cJSON_CreateBool(1);
     cJSON_AddItemToObject(root ,"res" ,item);
     out = cJSON_Print(root);
     cJSON_Delete(root);
-    if(recv(sock_fd ,(void *)out ,strlen(out) + 1 ,0) < 0){
+    if(send(sock_fd ,(void *)out ,strlen(out) + 1 ,0) < 0){
         perror("recv: 客户端响应失败");
         free(out);
         return 0;

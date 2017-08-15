@@ -11,10 +11,13 @@
 #include"./Friends_Srv.h"
 #include"./List.h"
 #include<pthread.h>
+#include"./Connect.h"
 
 extern int gl_uid;
 extern int sock_fd;
-extern pthread_mutex_t recv_mutex;
+//extern pthread_mutex_t mutex;
+extern int my_mutex;
+extern int your_mutex;
 extern char massage[1024];
 friends_t *FriendsList;
 
@@ -38,11 +41,14 @@ int Friends_Srv_GetList(){
     cJSON_Delete(root);
     friends_t *newNode = NULL;
     while(1){
-        pthread_mutex_lock(&recv_mutex);
+        //pthread_mutex_lock(&mutex);
+        My_Lock();
+        printf("fuck\n");
         root = cJSON_Parse(massage);
         item = cJSON_GetObjectItem(root ,"uid");
         if( item -> valueint == 0){
-            pthread_mutex_unlock(&recv_mutex);
+            My_Unlock();
+           // pthread_mutex_unlock(&mutex);
             break;
         }
         newNode = (friends_t *)malloc(sizeof(friends_t));
@@ -60,9 +66,11 @@ int Friends_Srv_GetList(){
         cJSON_Delete(root);
         newNode -> next = NULL;
         List_AddHead(FriendsList ,newNode);
-        pthread_mutex_unlock(&recv_mutex);
+        My_Unlock();
+        //pthread_mutex_unlock(&mutex);
     }
-    pthread_mutex_lock(&recv_mutex);
+    //pthread_mutex_lock(&mutex);
+    My_Lock();
     root = cJSON_Parse(massage);
     item = cJSON_GetObjectItem(root,"res");
     int res = item -> valueint;
@@ -74,7 +82,8 @@ int Friends_Srv_GetList(){
         rtn = 0;
     }
     cJSON_Delete(root);
-    pthread_mutex_unlock(&recv_mutex);
+    My_Unlock();
+    //pthread_mutex_unlock(&mutex);
     return rtn;
 }
 
@@ -84,22 +93,16 @@ int Friends_Srv_Add(int fuid ){
     cJSON *root = cJSON_CreateObject();
     cJSON *item = cJSON_CreateString("A");
     cJSON_AddItemToObject(root ,"type" ,item);
-    cJSON *data = cJSON_CreateObject();
     item = cJSON_CreateNumber(gl_uid);
-    cJSON_AddItemToObject(data, "uid" ,item);
+    cJSON_AddItemToObject(root, "uid" ,item);
     item = cJSON_CreateNumber(fuid);
-    cJSON_AddItemToObject(data ,"fuid" ,item);
-    char *out = cJSON_Print(data);
-    item = cJSON_CreateString(out);
-    cJSON_AddItemToObject(root ,"data" ,item);
-    free(out);
-    out = cJSON_Print(root);
+    cJSON_AddItemToObject(root ,"fuid" ,item);
+    char *out = cJSON_Print(root);
     if(send(sock_fd ,(void *)out ,strlen(out)+1 ,0) < 0){
         perror("send: 请求服务器失败");
         return 0;
     }
     free(out);
-    cJSON_Delete(data);
     cJSON_Delete(root);
     if(recv(sock_fd ,(void *)buf ,sizeof(buf) ,0) < 0){
         perror("recv: 接收服务器响应失败");

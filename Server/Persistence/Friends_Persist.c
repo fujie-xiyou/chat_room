@@ -20,8 +20,11 @@ int Friends_Perst_GetList(friends_t * FriendsList ,int uid){
     MYSQL_ROW row ,_row;
     char SQL[100];
     friends_t *NewNode = NULL;
-    sprintf(SQL ,"SELECT * FROM friends WHERE uid = '%d' AND state = '同意'" ,uid);
-    mysql_real_query(mysql ,SQL ,strlen(SQL));
+    sprintf(SQL ,"SELECT * FROM friends WHERE uid = '%d' " ,uid);
+    if(mysql_real_query(mysql ,SQL ,strlen(SQL))){
+        printf("%s",mysql_error(mysql));
+        return 0;
+    }
     res = mysql_store_result(mysql);
     while((row = mysql_fetch_row(res))){
         NewNode = (friends_t *)malloc(sizeof(friends_t));
