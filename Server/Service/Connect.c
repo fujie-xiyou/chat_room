@@ -30,32 +30,29 @@ void * thread(void *arg){
         switch(item -> valuestring[0]){
             case 'L' :
                 //登录
-                item = cJSON_GetObjectItem(root,"data");
-                Account_Srv_Login(client_fd , item -> valuestring);
+                Account_Srv_Login(client_fd , buf);
                 break;
             case 'S' :
                 //注册
-                item = cJSON_GetObjectItem(root,"data");
-                Account_Srv_SignIn(client_fd , item -> valuestring);
+                Account_Srv_SignIn(client_fd , buf);
                 break;
             case 'A' :
                 //添加好友
-                item = cJSON_GetObjectItem(root,"data");
-                //Friends_Srv_Add(client_fd, item -> valuestring);
+                //Friends_Srv_Add(client_fd, buf);
                 break;
             case 'G' :
                 //获取好友列表
-                item = cJSON_GetObjectItem(root ,"data");
-                //Friends_Srv_GetList(client_fd ,item -> valuestring);
+                //Friends_Srv_GetList(client_fd ,buf);
             case 'C' :
                 //聊天
-                item = cJSON_GetObjectItem(root,"data");
-                //Chat_Srv_(item -> valuestring);
+                //Chat_Srv_(buf);
                 break;
             case 'F' :
                 //文件
-                item = cJSON_GetObjectItem(root,"data");
                 printf("敬请期待\n");
+                break;
+            case 'O' :
+                Account_Srv_Out(client_fd ,buf);
                 break;
         }
     }

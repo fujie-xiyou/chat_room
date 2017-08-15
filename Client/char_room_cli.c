@@ -14,6 +14,5 @@ int gl_uid;//记录登录用户的uid
 int main(){
     Connect();
     Main_UI_Hello();
-    //printf("sock_fd = %d\n",sock_fd);
     close(sock_fd);
 }

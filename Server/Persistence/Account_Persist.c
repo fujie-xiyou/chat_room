@@ -12,8 +12,20 @@
 #include "MySQL.h"
 extern MYSQL * mysql;
 
+int Account_Perst_ChIsOnline(int uid ,int is_online){
+    char SQL[100];
+    sprintf(SQL ,"UPDATE account SET is_online = '%d' WHERE uid = '%d'" ,is_online ,uid);
+    if(mysql_real_query(mysql , SQL , strlen(SQL))){
+        printf("%s\n",mysql_error(mysql));
+        return 0;
+    }
+    return 1;
+    
+}
+
+
 int Account_Perst_IsUserName(const char * name){
-    char SQL[50];
+    char SQL[100];
     MYSQL_RES * res;
     MYSQL_ROW row;
     int rtn = 0;
@@ -28,10 +40,11 @@ int Account_Perst_IsUserName(const char * name){
     return rtn;
 }
 
-int Account_Perst_AddUser(const char *name , const char *password){
-    char SQL[50];
-    sprintf(SQL,"INSERT INTO account VALUES (NULL , '%s' , md5('%s'))", name , password);
+int Account_Perst_AddUser(const char *name ,int sex , const char *password){
+    char SQL[100];
+    sprintf(SQL,"INSERT INTO account VALUES (NULL , '%s' ,'%d' , 0, 0 , md5('%s'))", name ,sex , password);
     if(mysql_real_query(mysql , SQL , strlen(SQL))){
+        printf("%s\n",mysql_error(mysql));
         return 0;
     }
     return 1;
@@ -40,7 +53,7 @@ int Account_Perst_AddUser(const char *name , const char *password){
 
 
 int Account_Perst_MatchUserAndPassword(int uid , const char * password){
-    char SQL[50];
+    char SQL[100];
     MYSQL_RES * res;
     MYSQL_ROW row;
     int rtn;
@@ -57,8 +70,9 @@ int Account_Perst_MatchUserAndPassword(int uid , const char * password){
     return rtn;
 
 }
+/*
 int Account_Perst_GetUserInfo(friends_t *Node){
-    char SQL[50];
+    char SQL[100];
     MYSQL_RES *res;
     MYSQL_ROW row;
     sprintf(SQL ,"SELECT * FROM account WHERE uid = '%d'" ,Node -> uid);
@@ -71,3 +85,4 @@ int Account_Perst_GetUserInfo(friends_t *Node){
     Node -> is_online atoi(row[4]);
     mysql_free_result(res);
 }
+*/

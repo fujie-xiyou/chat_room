@@ -7,7 +7,9 @@
 
 #ifndef _FRIENDS_PERSIST_H
 #define _FRIENDS_PERSIST_H
-#include "../Server/List.h"
+#include"../Service/List.h"
+#include"../Service/Friends_Srv.h"
+#include<mysql/mysql.h>
 
 int Friends_Perst_Add(int uid ,int fuid);
 

@@ -9,7 +9,13 @@
 #define _ACCOUNT_SRV_H
 #include "cJSON.h"
 #include "Connect.h"
-int Account_Srv_SignIn(const char *name , const char *password);
+
+/*
+ * 注销登录
+ */
+int Account_Srv_Out(int uid);
+
+int Account_Srv_SignIn(const char *name , int sex ,const char *password);
 
 int Account_Srv_Login(const char *name , const char *password);
 

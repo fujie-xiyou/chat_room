@@ -8,9 +8,9 @@
 #ifndef _FRIENDS_SRV_H
 #define _FRIENDS_SRV_H
 
-#include "./cJSON.h"
-#include "./Connect.h"
-#include "./List.h"
+#include "cJSON.h"
+#include "Connect.h"
+#include "List.h"
 
 
 /*
@@ -27,7 +27,9 @@ typedef struct friends{
 } friends_t;
 
 
-
+/*
+ * 获取好友信息
+ */
 int Friends_Srv_GetList(int sock_fd ,const char *JSON);
 
 

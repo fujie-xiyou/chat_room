@@ -9,7 +9,6 @@
 #define _ACCOUNT_SER_H
 #include "cJSON.h"
 #include "List.h"
-int Account_Srv_SignIn(int sock_fd ,char * JSON);
 
 /*
  * 存储在线用户的uid以及对应的socket描述符
@@ -21,6 +20,16 @@ int Account_Srv_SignIn(int sock_fd ,char * JSON);
      struct online *next;
  } online_t;
 
+
+/*
+ * 改变用户登录状态
+ * 从在线链表,数据库两方面改变
+ * 如果是使用户下线,参数sock_fd可以取任意值
+ */
+int Account_Srv_ChIsOnline(int uid ,int is_online ,int sock_fd);
+
+//注销登录
+int Account_Srv_Out(int sock_fd , char *JSON);
 
 int Account_Srv_SignIn(int sock_fd , char * JSON);
 

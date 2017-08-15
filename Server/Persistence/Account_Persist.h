@@ -8,6 +8,14 @@
 #ifndef _ACCOUNT_PERSIST_H
 #define _ACCOUNT_PERSIST_H
 
+
+
+/*
+ * 修改用户的在线状态
+ */
+int Account_Perst_ChIsOnline(int uid ,int is_online);
+
+
 /*
  * 检测一个用户名是否存在
  * 参数传入一个用户名
@@ -21,7 +29,7 @@ int Account_Perst_IsUserName(const char * name);
  * 参数传入一个用户名和密码
  * 写入成功返回1,否则返回0
  */
-int Account_Perst_AddUser(const char * name , const char *password);
+int Account_Perst_AddUser(const char * name ,int sex, const char *password);
 
 
  /*
@@ -34,6 +42,7 @@ int Account_Perst_MatchUserAndPassword(int uid , const char * password);
 /*
  * 填充好友列表结构体中的信息
  */
-int Account_Perst_GetUserInfo(friends_t * Node);
+//int Account_Perst_GetUserInfo(friends_t * Node);
+//乱入了乱入了  这是Friends模块干的事情
 
 #endif
