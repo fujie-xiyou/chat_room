@@ -9,10 +9,13 @@
 #include<string.h>
 #include<stdlib.h>
 #include<unistd.h>
+#include "Account_Srv.h"
 #include "Friends_Srv.h"
+#include "Chat_Srv.h"
 #include "../Persistence/Friends_Persist.h"
 #include "../Persistence/Account_Persist.h"
-#include "Account_Srv.h"
+#include "../Common/cJSON.h"
+#include "../Common/List.h"
 
 extern online_t* OnlineList;
 int Friends_Srv_GetList(int sock_fd ,const char *JSON){
@@ -42,6 +45,8 @@ int Friends_Srv_GetList(int sock_fd ,const char *JSON){
         cJSON_AddItemToObject(root ,"is_follow" ,item);
         item = cJSON_CreateBool(curPos -> is_online);
         cJSON_AddItemToObject(root ,"is_online" ,item);
+        item = cJSON_CreateBool(curPos -> state);
+        cJSON_AddItemToObject(root ,"state" ,item);
         char *out = cJSON_Print(root);
         cJSON_Delete(root);
         if(send(sock_fd ,(void *)out ,strlen(out) + 1 ,0) < 0){
@@ -68,6 +73,7 @@ int Friends_Srv_GetList(int sock_fd ,const char *JSON){
     }
     free(out);
     usleep(50000);
+    Account_Srv_SendIsOnline(uid ,1);
     //销毁链表
     List_Destroy(FriendsList ,friends_t);
 
@@ -89,19 +95,103 @@ int Friends_Srv_GetList(int sock_fd ,const char *JSON){
 
 
 int Friends_Srv_Add(int sock_fd ,const char *JSON){
-    int f_sock_fd = -1;
     cJSON* root = cJSON_Parse(JSON);
     cJSON* item = cJSON_GetObjectItem(root ,"uid");
     int uid = item -> valueint;
+    item = cJSON_GetObjectItem(root ,"fname");
+    int fuid = Account_Perst_IsUserName(item -> valuestring);
+    cJSON_Delete(root);
+    root = cJSON_CreateObject();
+    item = cJSON_CreateString("R");
+    cJSON_AddItemToObject(root ,"type" ,item);
+    item = cJSON_CreateBool((fuid != 0));
+    cJSON_AddItemToObject(root ,"res",item);
+    if(fuid == 0){
+        item = cJSON_CreateString("用户名不存在");
+        cJSON_AddItemToObject(root ,"reason",item);
+    }
+    char *out = cJSON_Print(root);
+    //printf("发给 sock_fd = %d :\n%s",sock_fd ,out);
+    if(send(sock_fd ,(void *)out ,strlen(out) + 1 ,0) <= 0){
+        perror("send");
+        return 0;
+    }
+    free(out);
+    Friends_Perst_Add(uid ,fuid);
+    if(Chat_Srv_GetFriendSock(fuid) == 0) return 1;
+    Friends_Srv_SendAdd(uid ,fuid,"A");
+    return 1;
+}
+
+int Friends_Srv_SendAdd(int uid ,int fuid ,char* type){
+    int f_sock_fd = -1;
+    friends_t * NewFriends = (friends_t *)malloc(sizeof(friends_t));
+    if(*type == 'A'){
+        NewFriends->uid = uid;
+        Friends_Perst_GetFriendInfo(NewFriends);
+        f_sock_fd = Chat_Srv_GetFriendSock(fuid);
+    }
+    else{ 
+        NewFriends->uid = fuid;
+        Friends_Perst_GetFriendInfo(NewFriends);
+        f_sock_fd = Chat_Srv_GetFriendSock(uid);
+        NewFriends -> state = 1;
+    }
+    cJSON *root = cJSON_CreateObject();
+    cJSON *item = cJSON_CreateString(type);
+    cJSON_AddItemToObject(root ,"type" ,item);
+    item = cJSON_CreateNumber(NewFriends -> uid);
+    cJSON_AddItemToObject(root ,"uid" ,item);
+    item = cJSON_CreateString(NewFriends -> name);
+    cJSON_AddItemToObject(root ,"name" ,item);
+    item = cJSON_CreateBool(NewFriends -> sex);
+    cJSON_AddItemToObject(root ,"sex" ,item);
+    item = cJSON_CreateBool(NewFriends -> is_vip);
+    cJSON_AddItemToObject(root ,"is_vip" ,item);
+    item = cJSON_CreateBool(NewFriends -> is_follow);
+    cJSON_AddItemToObject(root ,"is_follow" ,item);
+    item = cJSON_CreateBool(NewFriends -> is_online);
+    cJSON_AddItemToObject(root ,"is_online" ,item);
+    item = cJSON_CreateBool(NewFriends -> state);
+    cJSON_AddItemToObject(root ,"state" ,item);
+    free(NewFriends);
+    char *out = cJSON_Print(root);
+    cJSON_Delete(root);
+    if(send(f_sock_fd ,(void *)out ,strlen(out) + 1 ,0) < 0){
+        perror("send");
+        printf("发给sock_fd = %d 失败\n",f_sock_fd);
+        free(out);
+        return 0;
+    }
+    free(out);
+    return 1;
+}
+
+int Friends_Srv_Apply(int sock_fd ,const char *JSON){
+    cJSON *root = cJSON_Parse(JSON);
+    cJSON *item = cJSON_GetObjectItem(root ,"uid");
+    int uid = item -> valueint;
     item = cJSON_GetObjectItem(root ,"fuid");
     int fuid = item -> valueint;
-    cJSON_Delete(root);
-    online_t *curPos;
-    List_ForEach(OnlineList ,curPos){
-        if(curPos -> uid == fuid) f_sock_fd = curPos -> sock_fd;
-    }
-    if(f_sock_fd != -1){
-        //send(f_sock_fd ,
-        //调整客户端去了
+    item = cJSON_GetObjectItem(root ,"is_agree");
+    int is_agree = item -> valueint;
+    int f_sock_fd = Chat_Srv_GetFriendSock(uid);
+    Friends_Perst_Apply(uid ,fuid ,is_agree);
+    if(is_agree) {
+        Friends_Srv_SendAdd(uid ,fuid ,"a");
+    }else{
+        friends_t *NewFriends;
+        NewFriends -> uid = fuid;
+        Friends_Perst_GetFriendInfo(NewFriends);
+        item = cJSON_CreateString(NewFriends -> name);
+        cJSON_AddItemToObject(root ,"fname",item);
+        char *out = cJSON_Print(root);
+        cJSON_Delete(root);
+        free(NewFriends);
+        if(send(f_sock_fd ,(void*)out ,strlen(out) + 1 ,0) <= 0){
+            perror("send");
+            return 0;
+        }
+        free(out);
     }
 }

@@ -39,10 +39,5 @@ int Account_Perst_AddUser(const char * name ,int sex, const char *password);
   */
 int Account_Perst_MatchUserAndPassword(int uid , const char * password);
 
-/*
- * 填充好友列表结构体中的信息
- */
-//int Account_Perst_GetUserInfo(friends_t * Node);
-//乱入了乱入了  这是Friends模块干的事情
 
 #endif

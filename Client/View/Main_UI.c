@@ -9,15 +9,18 @@
 #include "./Main_UI.h"
 #include "./Account_UI.h"
 #include "./Friends_UI.h"
+#include "./Chat_UI.h"
+#include "../Service/Account_Srv.h"
 #include "../Service/Friends_Srv.h"
-extern int gl_uid;
+#include "../Service/Chat_Srv.h"
+int gl_uid;
 void Main_UI_Hello(){
     int choice;
     do{
-        system("clear");
         if(gl_uid > 0){
             Main_UI_Menu();
         }
+        system("clear");
         printf(
             "==============================\n"
             " ****欢迎使用葫芦娃聊天室****\n"
@@ -30,7 +33,7 @@ void Main_UI_Hello(){
                 "请输入功能序号:"
                );
         scanf("%d" , &choice);
-        fflush(stdin);
+        ffflush();
         switch(choice){
             case 1:
                 gl_uid = Account_UI_Login();
@@ -49,8 +52,33 @@ void Main_UI_Hello(){
 
 void Main_UI_Menu(){
     Friends_Srv_GetList();
-    while(1){
+    Chat_Srv_InitList();
+    char choice;
+    do{
+        system("clear");
         Friends_UI_ShowList();
-        getchar();
-    }
+        scanf("%c",&choice);
+        if(choice == '\n') continue;
+        ffflush();
+        switch(choice){
+            case '1':
+                Chat_UI_Private();
+                break;
+            case '2':
+                //Chat_UI_ShowGroup();
+                break;
+            case '3':
+                Friends_UI_Apply();
+                break;
+            case '4':
+                Friends_UI_Add();
+                break;
+            case '5':
+                //Account_UI_ChInfo();
+                break;
+            case '6':
+                Account_Srv_Out(gl_uid);
+                break;
+        }
+    }while(choice != '6');
 }

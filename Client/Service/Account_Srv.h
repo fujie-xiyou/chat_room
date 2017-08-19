@@ -7,8 +7,10 @@
 
 #ifndef _ACCOUNT_SRV_H
 #define _ACCOUNT_SRV_H
-#include "cJSON.h"
+#include "../Common/cJSON.h"
 #include "Connect.h"
+
+void Account_Srv_RecvIsOnline(char *JSON);
 
 /*
  * 注销登录

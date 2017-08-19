@@ -10,17 +10,60 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
-#include "Account_Srv.h"
-#include "List.h"
+#include <unistd.h>
+#include "./Account_Srv.h"
+#include "./Chat_Srv.h"
+#include "./Friends_Srv.h"
 #include "../Persistence/Account_Persist.h"
+#include "../Persistence/Friends_Persist.h"
+#include "../Common/cJSON.h"
+#include "../Common/List.h"
 
 extern online_t * OnlineList;
 
+int Account_Srv_SendIsOnline(int uid ,int is_online){
+    int f_sock_fd;
+    friends_t *FriendsList ,*f;
+    List_Init(FriendsList ,friends_t);
+    Friends_Perst_GetList(FriendsList ,uid);
+    List_ForEach(FriendsList ,f){
+        if(f->is_online){
+            f_sock_fd = Chat_Srv_GetFriendSock(f->uid);
+            if(f_sock_fd == -1) return 0;
+            cJSON *root = cJSON_CreateObject();
+            cJSON *item = cJSON_CreateString("I");
+            cJSON_AddItemToObject(root ,"type" ,item);
+            item = cJSON_CreateNumber(uid);
+            cJSON_AddItemToObject(root ,"fuid",item);
+            item = cJSON_CreateBool(is_online);
+            cJSON_AddItemToObject(root ,"is_online",item);
+            char *out = cJSON_Print(root);
+            cJSON_Delete(root);
+            printf("上线:%s\n",out);
+            if(send(f_sock_fd ,(void *)out ,strlen(out) + 1 ,0) <= 0){
+                perror("send 客户端响应失败");
+                free(out);
+                return 0;
+            }
+            free(out);
+        }
+    }
+    List_Destroy(FriendsList, friends_t);
+    return 1;
+}
 
 int Account_Srv_ChIsOnline(int uid ,int is_online ,int sock_fd){
     online_t *curPos;
     int rtn = 0;
     if(is_online){
+        List_ForEach(OnlineList ,curPos){
+            if(curPos -> uid == uid){
+                close(curPos -> sock_fd);
+                curPos -> sock_fd = sock_fd;
+                rtn = 1;
+                goto per;
+            }
+        }
         curPos = (online_t *)malloc(sizeof(online_t));
         curPos -> uid = uid;
         curPos -> sock_fd = sock_fd;
@@ -28,41 +71,45 @@ int Account_Srv_ChIsOnline(int uid ,int is_online ,int sock_fd){
         rtn = 1;
     }else{
         List_ForEach(OnlineList ,curPos){
-            if(curPos -> uid == uid){
+            if(curPos -> sock_fd == sock_fd){
+                uid = rtn = curPos -> uid;
                 List_FreeNode(curPos ,online_t);
-                rtn = 1;
                 break;
             }
         }
     }
-    if(Account_Perst_ChIsOnline(uid ,is_online) == 0) rtn = 0;
+    if(uid == -1) return 0;
+per: if(Account_Perst_ChIsOnline(uid ,is_online) == 0) rtn = 0;
     return rtn;
 
 }
 
 int Account_Srv_Out(int sock_fd ,char *JSON){
-    int uid ,is_online = 0;
+    int uid;
     int rtn;
     cJSON *root = cJSON_Parse(JSON);
     cJSON *item = cJSON_GetObjectItem(root ,"uid");
     uid = item -> valueint;
     cJSON_Delete(root);
-    rtn = Account_Srv_ChIsOnline(uid ,is_online ,0);
+    rtn = Account_Srv_ChIsOnline(uid ,0 ,sock_fd);
+    if(rtn != -1){ 
+        Account_Srv_SendIsOnline(uid ,0);
+        //向在线好友发送下线通知
+    }
     root = cJSON_CreateObject();
     item = cJSON_CreateString("R");
     cJSON_AddItemToObject(root ,"type" ,item);
-    item = cJSON_CreateBool(rtn);
+    item = cJSON_CreateBool((rtn > 0));
     cJSON_AddItemToObject(root ,"res",item);
-    item = cJSON_CreateString("服务器异常");
+    item = cJSON_CreateString("服务器异常 喵喵?");
     cJSON_AddItemToObject(root , "reason" ,item);
     char *out = cJSON_Print(root);
     if(send(sock_fd ,(void*)out , strlen(out) + 1 ,0) <= 0){
         //perror("send ")
         rtn = 0;
     }
-    rtn = 1;
-    cJSON_Delete(root);
-    free(out);
+    //cJSON_Delete(root);
+    //free(out);
     return rtn;
 }
 

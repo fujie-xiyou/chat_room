@@ -1,17 +1,17 @@
 #!Makefile
 
-PROGRAM = char_room_srv
+PROGRAM = chat_room_srv
 
 C_SOURCES = $(shell find . -name "*.c")
 C_OBJECTS = $(patsubst %.c, %.o, $(C_SOURCES))
 
 CC = gcc
 
-C_FLAGS = -DDEBUG -c -Wall -Wextra -ggdb -I.
+C_FLAGS = -DDEBUG -c -Wall -Wextra -ggdb3 -I.
 
 all: $(C_OBJECTS) 
 	@echo compile...
-	$(CC) $(C_OBJECTS) -lm -lpthread -L/usr/lib64/mysql -lmysqlclient -o $(PROGRAM)
+	$(CC) $(C_OBJECTS) -lm -lpthread -L/usr/lib64/mysql -lmysqlclient -LCommon -lb64 -o $(PROGRAM)
 
 .c.o:
 	@echo link$< ...
@@ -19,5 +19,5 @@ all: $(C_OBJECTS)
 
 .PHONY:clean
 clean:
-	$(RM) $(C_OBJECTS) char_room_srv
+	$(RM) $(C_OBJECTS) chat_room_srv
 

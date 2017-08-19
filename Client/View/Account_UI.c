@@ -7,7 +7,7 @@
 
 #include <stdio.h>
 #include "./Account_UI.h"
-#include "./Common.h"
+#include "../Common/Common.h"
 #include "../Service/Account_Srv.h"
 int Account_UI_SignIn(){
     char name[30] , password[30];
@@ -46,5 +46,6 @@ int Account_UI_Login(){
     scanf("%s",password);
     ffflush();
     return Account_Srv_Login(name , password);
+    getchar();    
     
 }

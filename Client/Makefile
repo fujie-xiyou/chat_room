@@ -1,6 +1,6 @@
 #!Makefile
 
-PROGRAM = char_room_cli
+PROGRAM = chat_room_cli
 
 C_SOURCES = $(shell find . -name "*.c")
 C_OBJECTS = $(patsubst %.c, %.o, $(C_SOURCES))
@@ -11,7 +11,7 @@ C_FLAGS = -DDEBUG -c -Wall -Wextra -ggdb -I.
 
 all: $(C_OBJECTS) 
 	@echo compile...
-	$(CC) $(C_OBJECTS) -lm -lpthread -o $(PROGRAM)
+	$(CC) $(C_OBJECTS) -lm -lpthread -LCommon -lb64 -o $(PROGRAM)
 
 .c.o:
 	@echo link$< ...
@@ -19,5 +19,5 @@ all: $(C_OBJECTS)
 
 .PHONY:clean
 clean:
-	$(RM) $(C_OBJECTS) char_room_cli
+	$(RM) $(C_OBJECTS) chat_room_cli
 

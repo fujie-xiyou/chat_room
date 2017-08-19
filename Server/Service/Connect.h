@@ -3,14 +3,11 @@
 #ifndef _CONNECT_H
 #define _CONNECT_H
 
-#include<string.h>
-#include<stdlib.h>
-#include<sys/socket.h>
-#include<sys/types.h>
-#include<netinet/in.h>
-#include"cJSON.h"
-
-
+#include <string.h>
+#include <stdlib.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netinet/in.h>
 /*
  * socket消息结构
  * type可能的取值:

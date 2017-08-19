@@ -8,9 +8,8 @@
 #ifndef _FRIENDS_SRV_H
 #define _FRIENDS_SRV_H
 
-#include "cJSON.h"
-#include "Connect.h"
-#include "List.h"
+
+#include "./Connect.h"
 
 
 /*
@@ -23,6 +22,7 @@ typedef struct friends{
     int is_vip;//是否是会员
     int is_follow;//是否为特别关心
     int is_online; //是否在线
+    int state;
     struct friends *next;
 } friends_t;
 
@@ -38,9 +38,10 @@ int Friends_Srv_GetList(int sock_fd ,const char *JSON);
  */
 int Friends_Srv_Add(int sock_fd ,const char *JSON);
 
+int Friends_Srv_SendAdd(int uid,int fuid ,char* type);
 
 int Friends_Srv_Del(int sock_fd ,const char *JSON);
 
-
+int Friends_Srv_Apply(int sock_fd ,const char *JSON); 
 
 #endif

@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include "Account_Persist.h"
 #include "MySQL.h"
+#include "../Service/Friends_Srv.h"
 extern MYSQL * mysql;
 
 int Account_Perst_ChIsOnline(int uid ,int is_online){
@@ -70,19 +71,4 @@ int Account_Perst_MatchUserAndPassword(int uid , const char * password){
     return rtn;
 
 }
-/*
-int Account_Perst_GetUserInfo(friends_t *Node){
-    char SQL[100];
-    MYSQL_RES *res;
-    MYSQL_ROW row;
-    sprintf(SQL ,"SELECT * FROM account WHERE uid = '%d'" ,Node -> uid);
-    mysql_real_query(mysql ,SQL, strlen(SQL));
-    res = mysql_store_result(mysql);
-    row = mysql_fetch_row(res);
-    strcpy(Node -> name ,row[1]);
-    Node -> sex = atoi(row[2]);
-    Node -> is_vip = atoi(row[3]);
-    Node -> is_online atoi(row[4]);
-    mysql_free_result(res);
-}
-*/
+

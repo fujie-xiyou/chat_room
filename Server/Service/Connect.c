@@ -8,12 +8,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "Connect.h"
-#include <unistd.h>
 #include <pthread.h>
-#include "List.h"
-#include "Account_Srv.h"
+#include <unistd.h>
+#include "./Connect.h"
+#include "./Account_Srv.h"
 #include "./Friends_Srv.h"
+#include "./Chat_Srv.h"
+#include "../Common/cJSON.h"
+#include "../Common/List.h"
+#include "../Persistence/Friends_Persist.h"
 #define LISTEN_NUM 12 //连接请求队列长度
 
 online_t *OnlineList;
@@ -22,12 +25,18 @@ void * thread(void *arg){
     int client_fd = (int)arg;
     while(1){
         if(recv(client_fd , (void *)buf , sizeof(buf) , 0) <= 0){
+            int uid = Account_Srv_ChIsOnline(-1 , 0 ,client_fd);
+            if(uid != -1){
+                Account_Srv_SendIsOnline(uid ,0);
+                //向在线好友发送下线通知
+            }
             perror("recv");
-            //exit(0);
-            break;
+            return NULL;
         }
         cJSON *root = cJSON_Parse(buf);
         cJSON *item = cJSON_GetObjectItem(root,"type");
+        //printf("收到: sockfd = %d\n%s\n",client_fd,buf);
+
         switch(item -> valuestring[0]){
             case 'L' :
                 //登录
@@ -39,21 +48,25 @@ void * thread(void *arg){
                 break;
             case 'A' :
                 //添加好友
-                //Friends_Srv_Add(client_fd, buf);
+                Friends_Srv_Add(client_fd, buf);
                 break;
             case 'G' :
                 //获取好友列表
                 Friends_Srv_GetList(client_fd ,buf);
-            case 'C' :
-                //聊天
-                //Chat_Srv_(buf);
+                break;
+            case 'P' :
+                //私聊
+                Chat_Srv_Private(client_fd,buf);
                 break;
             case 'F' :
                 //文件
-                printf("敬请期待\n");
+                Chat_Srv_File(buf);
                 break;
             case 'O' :
                 Account_Srv_Out(client_fd ,buf);
+                break;
+            case 'a':
+                Friends_Srv_Apply(client_fd ,buf);
                 break;
         }
     }

@@ -16,4 +16,8 @@ int Account_UI_SignIn();
 
 int Account_UI_Login();
 
+void Account_UI_ChInfo();
+
+void Account_UI_Password();
+
 #endif

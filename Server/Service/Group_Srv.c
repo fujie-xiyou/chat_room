@@ -1,18 +1,14 @@
 /*************************************************************************
-	>    File Name: Common.h
+	>    File Name: Group_Srv.c
 	>       Author: fujie
 	>         Mail: fujie.me@qq.com
-	> Created Time: 2017年08月11日 星期五 15时29分48秒
+	> Created Time: 2017年08月18日 星期五 08时18分19秒
  ************************************************************************/
 
-#ifndef _COMMON_H
-#define _COMMON_H
 #include<stdio.h>
-//安全gets
-char *sgets(char *str,int len);
+#include<string.h>
+#include<string.h>
+#include "./Group_Srv.h"
+#include "../Common/List.h"
 
-//清空输入缓冲区
-void ffflush();
-
-
-#endif
+    

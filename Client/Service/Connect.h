@@ -12,6 +12,7 @@
 #include <sys/socket.h>
 #include <linux/socket.h>
 #include <arpa/inet.h>
+#include "../Common/Common.h"
 
 
 /*
@@ -19,8 +20,5 @@
  */
 void Connect();
 
-//暴力锁
-void My_Lock();
 
-void My_Unlock();
 #endif

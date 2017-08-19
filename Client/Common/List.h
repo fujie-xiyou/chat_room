@@ -47,6 +47,16 @@
 	}
 
 
+
+//遍历链表
+#define List_ForEach(list, curPos) 		\
+	 for (   curPos = (list)->next;  	\
+		  	  	  curPos != NULL;       \
+		  	  	  curPos=curPos->next	\
+	    )
+	    
+	    
+	    
 //链表头插法，list为头指针，new为新节点
 #define List_AddHead(list, newNode) {			\
 		(newNode)->next=(list)->next;		 	\
@@ -54,13 +64,15 @@
 	}
 
 
-//单链表尾插麻烦  砍了
-//链表尾插法，list为头指针，new为新节点
-#define List_AddTail(list, newNode) {			\
-		(newNode)->prev=(list)->prev; 		 	\
-		(list)->prev->next=newNode;			 	\
-		(newNode)->next=list;				 	\
-		(list)->prev=newNode;				 	\
+
+//链表尾插法，list为头指针，curPos为循环变量 new为新节点
+#define List_AddTail(list, curPos ,newNode) {			\
+		for(curPos = (list); ;curPos=curPos->next){		\
+			if((curPos)->next == NULL){					\
+				(curPos)->next = (newNode);				\
+				break;									\
+			}											\
+		}												\
 	}
 
 //貌似没用 砍了 好实现 memcpy数据域
@@ -80,19 +92,18 @@
 
 //判断链表是否为空，list为头指针
 #define List_IsEmpty(list)  (((list) != NULL)
+
+
 //删除并释放链表结点node，
-#define List_FreeNode(node,list_node_t) {             \
-			assert(NULL!=node);				         \
-			list_node_t *temp = node->next;          \
-			memcpy(node,temp,sizeof(list_node_t)); 	 \
-			free(temp); 							\
+#define List_FreeNode(node,list_node_t) {             		\
+			assert(NULL!=node);								\
+			if(node -> next != NULL){				        \
+				list_node_t *temp = node->next;          	\
+				memcpy(node,temp,sizeof(list_node_t)); 		\
+				free(temp); 								\
+			}else{											\
+				free(node);									\
+			}												\
 	}
-
-
-#define List_ForEach(list, curPos) 		\
-	 for (   curPos = (list)->next;  	\
-		  	  	  curPos != NULL;       \
-		  	  	  curPos=curPos->next	\
-	    )
 
 #endif

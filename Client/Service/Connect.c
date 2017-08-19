@@ -10,26 +10,20 @@
 #include <string.h>
 #include <pthread.h>
 #include <unistd.h>
-#include "Connect.h"
-#include "cJSON.h"
+#include "./Connect.h"
+#include "./Chat_Srv.h"
+#include "./Account_Srv.h"
+#include "./Friends_Srv.h"
+#include "../Common/cJSON.h"
 
 int sock_fd;
 //pthread_mutex_t mutex;
 //pthread_cond_t cond;
-int my_mutex = 0;
+extern int my_mutex;
 char massage[1024];
 
-
-void My_Lock(){
-    while(my_mutex == 0);
-}
-
-void My_Unlock(){
-    my_mutex = 0;
-}
 void * thread(void *arg){
     while(1){
-        //printf("fuck\n");
         /*
         printf("线程上锁之前\n");
         pthread_mutex_lock(&mutex);
@@ -38,22 +32,29 @@ void * thread(void *arg){
         printf("线程条件变量为真\n");
         */
         if(my_mutex) continue;
-        printf("等待接收\n");
+        //printf("等待接收\n");
         if(recv(sock_fd ,massage ,sizeof(massage) ,0) <= 0){
             perror("recv: 服务器失去响应");
             exit(0);
         }
-        printf("收到:%s\n",massage);
+        //printf("收到:%s\n",massage);
         cJSON *root = cJSON_Parse(massage);
         cJSON *item = cJSON_GetObjectItem(root ,"type");
         switch(item -> valuestring[0]){
             case 'A' :
+                Friends_Srv_RecvAdd(massage);
                 //处理好友请求
                 break;
-            case 'C' :
+            case 'a':
+                //处理好友请求反馈
+                Friends_Srv_ApplyRes(massage);
+                break;
+            case 'P' :
                 //处理私聊消息
+                Chat_Srv_RecvPrivate(massage);
                 break;
             case 'F' :
+                Chat_Srv_RecvFile(massage);
                 //处理文件请求
                 break;
             case 'Q' :
@@ -69,6 +70,9 @@ void * thread(void *arg){
                 //获取好友列表
                 //主线程处理
                 break;
+            case 'I' :
+                //好友上下线请求
+                Account_Srv_RecvIsOnline(massage);
         }
         /*
         printf("线程解锁之前\n");
