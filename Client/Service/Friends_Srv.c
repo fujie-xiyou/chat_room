@@ -13,7 +13,7 @@
 #include"./Connect.h"
 #include"../Common/Common.h"
 #include"../Common/List.h"
-
+#define MSG_LEN 1024
 extern int gl_uid;
 extern int sock_fd;
 //extern pthread_mutex_t mutex;
@@ -34,7 +34,7 @@ int Friends_Srv_GetList(){
     item = cJSON_CreateNumber(gl_uid);
     cJSON_AddItemToObject(root, "uid" ,item);
     char *out = cJSON_Print(root);
-    if(send(sock_fd ,(void *)out ,strlen(out)+1 ,0) < 0){
+    if(send(sock_fd ,(void *)out ,MSG_LEN,0) < 0){
         perror("send: 请求服务器失败");
         return 0;
     }
@@ -100,7 +100,7 @@ int Friends_Srv_SendAdd(const char *fname){
     item = cJSON_CreateString(fname);
     cJSON_AddItemToObject(root ,"fname" ,item);
     char *out = cJSON_Print(root);
-    if(send(sock_fd ,(void *)out ,strlen(out)+1 ,0) < 0){
+    if(send(sock_fd ,(void *)out ,MSG_LEN ,0) < 0){
         perror("send: 请求服务器失败");
         return 0;
     }
@@ -165,7 +165,7 @@ int Friends_Srv_Apply(int uid ,int fuid ,int is_agree){
     cJSON_AddItemToObject(root ,"is_agree" ,item);
     char *out = cJSON_Print(root);
     cJSON_Delete(root);
-    if(send(sock_fd ,(void *)out ,strlen(out) + 1,0) <= 0 ){
+    if(send(sock_fd ,(void *)out ,MSG_LEN,0) <= 0 ){
         perror("send");
         return 0;
     }

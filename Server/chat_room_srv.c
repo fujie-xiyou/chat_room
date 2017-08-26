@@ -11,6 +11,7 @@
 int main(){
     if(MySQL_Connect() == 0){
         printf("数据库连接失败\n");
+        exit(0);
     }
     Connect();
 }

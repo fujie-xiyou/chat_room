@@ -18,6 +18,7 @@
 #include "../Persistence/Friends_Persist.h"
 #include "../Common/cJSON.h"
 #include "../Common/List.h"
+#define MSG_LEN 1024
 
 extern online_t * OnlineList;
 
@@ -39,8 +40,8 @@ int Account_Srv_SendIsOnline(int uid ,int is_online){
             cJSON_AddItemToObject(root ,"is_online",item);
             char *out = cJSON_Print(root);
             cJSON_Delete(root);
-            printf("上线:%s\n",out);
-            if(send(f_sock_fd ,(void *)out ,strlen(out) + 1 ,0) <= 0){
+            //printf("上线:%s\n",out);
+            if(send(f_sock_fd ,(void *)out ,MSG_LEN ,0) <= 0){
                 perror("send 客户端响应失败");
                 free(out);
                 return 0;
@@ -104,7 +105,7 @@ int Account_Srv_Out(int sock_fd ,char *JSON){
     item = cJSON_CreateString("服务器异常 喵喵?");
     cJSON_AddItemToObject(root , "reason" ,item);
     char *out = cJSON_Print(root);
-    if(send(sock_fd ,(void*)out , strlen(out) + 1 ,0) <= 0){
+    if(send(sock_fd ,(void*)out , MSG_LEN ,0) <= 0){
         //perror("send ")
         rtn = 0;
     }
@@ -134,7 +135,7 @@ int Account_Srv_SignIn(int sock_fd ,char * JSON){
         item = cJSON_CreateString("用户名已存在");
         cJSON_AddItemToObject(root , "reason" , item);
         char *out = cJSON_Print(root);
-        if(send(sock_fd , (void *)out , strlen(out)+1 , 0) < 0){
+        if(send(sock_fd , (void *)out , MSG_LEN , 0) < 0){
             //出错 日志处理
         }
         cJSON_Delete(root);
@@ -144,7 +145,7 @@ int Account_Srv_SignIn(int sock_fd ,char * JSON){
             item = cJSON_CreateBool(1);
             cJSON_AddItemToObject(root , "res" , item);
             char *out = cJSON_Print(root);
-            if(send(sock_fd , (void *)out , strlen(out)+1 , 0) < 0){
+            if(send(sock_fd , (void *)out , MSG_LEN , 0) < 0){
                 //出错,记录日志
             }
             cJSON_Delete(root);
@@ -156,7 +157,7 @@ int Account_Srv_SignIn(int sock_fd ,char * JSON){
         item = cJSON_CreateString("服务器异常");
         cJSON_AddItemToObject(root , "reason" , item);
         char *out = cJSON_Print(root);
-        if(send(sock_fd , (void *)out , strlen(out)+1 , 0) < 0){
+        if(send(sock_fd , (void *)out , MSG_LEN , 0) < 0){
             //出错 日志处理
         }
         cJSON_Delete(root);
@@ -184,7 +185,7 @@ int Account_Srv_Login(int sock_fd ,char *JSON){
         item = cJSON_CreateString("用户名不存在");
         cJSON_AddItemToObject(root , "reason" , item);
         char *out = cJSON_Print(root);
-        if(send(sock_fd , (void *)out , strlen(out)+1 , 0) < 0){
+        if(send(sock_fd , (void *)out , MSG_LEN , 0) < 0){
             //出错 日志处理
         }
         cJSON_Delete(root);
@@ -199,9 +200,10 @@ int Account_Srv_Login(int sock_fd ,char *JSON){
             item = cJSON_CreateNumber(uid);
             cJSON_AddItemToObject(root , "uid" ,item);
             char *out = cJSON_Print(root);
-            if(send(sock_fd , (void *)out , strlen(out)+1 , 0) < 0){
+            if(send(sock_fd , (void *)out , MSG_LEN , 0) < 0){
                 //出错,记录日志
             }
+            cJSON_Delete(root);
             free(out);
             return 1;
         }
@@ -211,7 +213,7 @@ int Account_Srv_Login(int sock_fd ,char *JSON){
         item = cJSON_CreateString("用户名密码不匹配");
         cJSON_AddItemToObject(root , "reason" , item);
         char *out = cJSON_Print(root);
-        if(send(sock_fd , (void *)out , strlen(out)+1 , 0) < 0){
+        if(send(sock_fd , (void *)out , MSG_LEN , 0) < 0){
             //出错 日志处理
         }
         cJSON_Delete(root);

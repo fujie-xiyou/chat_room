@@ -50,7 +50,7 @@ int Account_Srv_Out(int uid){
     item = cJSON_CreateNumber(uid);
     cJSON_AddItemToObject(root , "uid" ,item);
     char *out = cJSON_Print(root);
-    if(send(sock_fd ,(void *)out ,strlen(out) + 1 ,0) <= 0){
+    if(send(sock_fd ,(void *)out ,1024 ,0) <= 0){
         perror("send 请求服务器失败");
         rtn = 0;
     }
@@ -90,7 +90,7 @@ int Account_Srv_SignIn(const char * name ,int sex ,const char * password){
     item = cJSON_CreateString(password);
     cJSON_AddItemToObject(root,"password",item);
     char *out = cJSON_Print(root);
-    if(send(sock_fd , (void *)out , strlen(out) + 1 ,0) < 0 ){
+    if(send(sock_fd , (void *)out , 1024 ,0) < 0 ){
         perror("send: 请求服务器失败");
         return 0;
     }
@@ -129,10 +129,11 @@ int Account_Srv_Login(const char *name , const char *password){
     item = cJSON_CreateString(password);
     cJSON_AddItemToObject(root,"password",item);
     char *out = cJSON_Print(root);
-    if(send(sock_fd , (void *)out , strlen(out) + 1 ,0) < 0 ){
+    if(send(sock_fd , out , 1024 ,0) < 0 ){
         perror("send: 请求服务器失败");
         return 0;
     }
+    free(out);
     //printf("%s\n",massage);
     My_Lock();
     /*
@@ -142,7 +143,6 @@ int Account_Srv_Login(const char *name , const char *password){
     pthread_cond_wait(&cond ,&mutex);
     printf("登录条件变量为真\n");
     */
-    free(out);
     cJSON_Delete(root);
     root = cJSON_Parse(massage);
     item = cJSON_GetObjectItem(root,"res");

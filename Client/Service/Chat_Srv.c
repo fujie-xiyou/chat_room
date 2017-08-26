@@ -9,11 +9,13 @@
 #include<string.h>
 #include<stdlib.h>
 #include<unistd.h>
+#include<libgen.h>
 #include"./Connect.h"
 #include"./Chat_Srv.h"
 #include"../Common/cJSON.h"
 #include"../Common/List.h"
 #include"../Service/Friends_Srv.h"
+#define MSG_LEN 1024
 extern int gl_uid;
 extern int sock_fd;
 extern friends_t *FriendsList;
@@ -32,7 +34,6 @@ int Chat_Srv_RecvFile(const char *JSON){
     }
     item = cJSON_GetObjectItem(root ,"con");
     strcat( buf , item -> valuestring);
-    printf("\n%s\n",buf);
     item = cJSON_GetObjectItem(root ,"size");
     int size = item -> valueint;
     base64_decodestate state_in;
@@ -43,32 +44,42 @@ int Chat_Srv_RecvFile(const char *JSON){
         close(fd);
         return 0;
     }
-    if(size < 650) {
+    if(size < 650 - 2) {
         item = cJSON_GetObjectItem(root ,"uid");
         int uid = item -> valueint;
         friends_t *f;
         List_ForEach(FriendsList ,f){
             if(f -> uid == uid){
                 printf("\n%s 发来一个文件,已保存至./RecvFile/%s\n",
-                        f->name ,filename);
+                        f->name ,basename(filename));
                 break;
             }
         }
     }
     close(fd);
+    return 0;
 }
 int Chat_Srv_SendFile(const char *filename ,int fuid){
-    char buf[650] ,code_out[900];
+    char buf[650] ,code_out[900] ,code_end[5],*out;
     int fd ,size;
     base64_encodestate state_in;
-    base64_init_encodestate(&state_in);
     if((fd = open(filename ,O_RDONLY)) == -1){
         printf("文件不存在或无读取权限");
         return 0;
     }
     while(1){
-        size = read(fd ,buf ,sizeof(buf));
+        memset(buf ,0,sizeof(buf));
+        size = read(fd ,buf ,sizeof(buf) - 2);
+        //650 - 2 刚好是24的整数倍 转码清晰
+        base64_init_encodestate(&state_in);
+        memset(code_out ,0,sizeof(code_out));
         base64_encode_block(buf ,size ,code_out ,&state_in);
+        if(state_in.step != step_A) {
+            memset(code_end ,0,sizeof(code_end));
+            base64_encode_blockend(code_end ,&state_in);
+            strcat(code_out ,code_end);
+        }
+        //step_A代表刚好转成base64时不需要补位
         cJSON *root = cJSON_CreateObject();
         cJSON *item = cJSON_CreateString("F");
         cJSON_AddItemToObject(root ,"type" ,item);
@@ -76,21 +87,21 @@ int Chat_Srv_SendFile(const char *filename ,int fuid){
         cJSON_AddItemToObject(root ,"uid",item);
         item = cJSON_CreateNumber(fuid);
         cJSON_AddItemToObject(root ,"fuid" ,item);
-        item = cJSON_CreateString(filename);
+        item = cJSON_CreateString(basename((char*)filename));
         cJSON_AddItemToObject(root ,"filename" ,item);
         item = cJSON_CreateNumber(size);
         cJSON_AddItemToObject(root ,"size" ,item);
         item = cJSON_CreateString(code_out);
         cJSON_AddItemToObject(root ,"con",item);
-        char *out = cJSON_Print(root);
+        out = cJSON_Print(root);
         cJSON_Delete(root);
-        printf("\n%s\n" ,code_out);
-        if(send(sock_fd ,out,strlen(out)+1 ,0) <= 0){
+        int ret;
+        if((ret = send(sock_fd ,out,MSG_LEN ,0)) <= 0){
             perror("send");
             free(out);
             return 0;
         }
-        if(size < sizeof(buf)) break;
+        if(size < (int)sizeof(buf) - 2) break;
         free(out);
     }
     close(fd);
@@ -146,7 +157,7 @@ int Chat_Srv_SendPrivate(int to_uid ,const char * msg){
     item = cJSON_CreateString(msg);
     cJSON_AddItemToObject(root ,"msg" ,item);
     char *out = cJSON_Print(root);
-    if(send(sock_fd ,(void *)out ,strlen(out) + 1 ,0) <= 0){
+    if(send(sock_fd ,(void *)out ,MSG_LEN ,0) <= 0){
         printf("服务器失去响应\n");
         rtn = 0;
     }

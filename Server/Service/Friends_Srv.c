@@ -16,10 +16,11 @@
 #include "../Persistence/Account_Persist.h"
 #include "../Common/cJSON.h"
 #include "../Common/List.h"
+#define MSG_LEN 1024
 
 extern online_t* OnlineList;
 int Friends_Srv_GetList(int sock_fd ,const char *JSON){
-    char buf[1024];
+    char buf[MSG_LEN];
     int uid;
     cJSON *root = cJSON_Parse(JSON);
     cJSON *item = cJSON_GetObjectItem(root ,"uid");
@@ -49,7 +50,7 @@ int Friends_Srv_GetList(int sock_fd ,const char *JSON){
         cJSON_AddItemToObject(root ,"state" ,item);
         char *out = cJSON_Print(root);
         cJSON_Delete(root);
-        if(send(sock_fd ,(void *)out ,strlen(out) + 1 ,0) < 0){
+        if(send(sock_fd ,(void *)out ,MSG_LEN ,0) < 0){
             perror("send 客户端响应失败");
             free(out);
             return 0;
@@ -66,7 +67,7 @@ int Friends_Srv_GetList(int sock_fd ,const char *JSON){
     cJSON_AddItemToObject(root ,"uid" ,item);
     char *out = cJSON_Print(root);
     cJSON_Delete(root);
-    if(send(sock_fd ,(void *)out ,strlen(out) + 1 ,0) < 0){
+    if(send(sock_fd ,(void *)out ,MSG_LEN ,0) < 0){
         perror("send 客户端响应失败");
         free(out);
         return 0;
@@ -84,7 +85,7 @@ int Friends_Srv_GetList(int sock_fd ,const char *JSON){
     cJSON_AddItemToObject(root ,"res" ,item);
     out = cJSON_Print(root);
     cJSON_Delete(root);
-    if(send(sock_fd ,(void *)out ,strlen(out) + 1 ,0) < 0){
+    if(send(sock_fd ,(void *)out ,MSG_LEN ,0) < 0){
         perror("recv: 客户端响应失败");
         free(out);
         return 0;
@@ -112,7 +113,7 @@ int Friends_Srv_Add(int sock_fd ,const char *JSON){
     }
     char *out = cJSON_Print(root);
     //printf("发给 sock_fd = %d :\n%s",sock_fd ,out);
-    if(send(sock_fd ,(void *)out ,strlen(out) + 1 ,0) <= 0){
+    if(send(sock_fd ,(void *)out ,MSG_LEN ,0) <= 0){
         perror("send");
         return 0;
     }
@@ -157,7 +158,7 @@ int Friends_Srv_SendAdd(int uid ,int fuid ,char* type){
     free(NewFriends);
     char *out = cJSON_Print(root);
     cJSON_Delete(root);
-    if(send(f_sock_fd ,(void *)out ,strlen(out) + 1 ,0) < 0){
+    if(send(f_sock_fd ,(void *)out ,MSG_LEN,0) < 0){
         perror("send");
         printf("发给sock_fd = %d 失败\n",f_sock_fd);
         free(out);
@@ -180,7 +181,7 @@ int Friends_Srv_Apply(int sock_fd ,const char *JSON){
     if(is_agree) {
         Friends_Srv_SendAdd(uid ,fuid ,"a");
     }else{
-        friends_t *NewFriends;
+        friends_t *NewFriends = (friends_t *)malloc(sizeof(friends_t));
         NewFriends -> uid = fuid;
         Friends_Perst_GetFriendInfo(NewFriends);
         item = cJSON_CreateString(NewFriends -> name);
@@ -188,7 +189,7 @@ int Friends_Srv_Apply(int sock_fd ,const char *JSON){
         char *out = cJSON_Print(root);
         cJSON_Delete(root);
         free(NewFriends);
-        if(send(f_sock_fd ,(void*)out ,strlen(out) + 1 ,0) <= 0){
+        if(send(f_sock_fd ,(void*)out ,MSG_LEN ,0) <= 0){
             perror("send");
             return 0;
         }

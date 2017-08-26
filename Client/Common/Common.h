@@ -10,8 +10,8 @@
 #include<stdio.h>
 #include<fcntl.h>
 #include <time.h>
-#include "./cdecode.h"
-#include "./cencode.h"
+#include <b64/cdecode.h>
+#include <b64/cencode.h>
 
 typedef struct {
 	int year;

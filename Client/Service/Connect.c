@@ -15,14 +15,17 @@
 #include "./Account_Srv.h"
 #include "./Friends_Srv.h"
 #include "../Common/cJSON.h"
+#define MSG_LEN 1024
 
 int sock_fd;
 //pthread_mutex_t mutex;
 //pthread_cond_t cond;
 extern int my_mutex;
-char massage[1024];
+char massage[MSG_LEN];
 
 void * thread(void *arg){
+    int ret ,recv_len;
+    cJSON *root ,*item;
     while(1){
         /*
         printf("线程上锁之前\n");
@@ -33,13 +36,18 @@ void * thread(void *arg){
         */
         if(my_mutex) continue;
         //printf("等待接收\n");
-        if(recv(sock_fd ,massage ,sizeof(massage) ,0) <= 0){
-            perror("recv: 服务器失去响应");
-            exit(0);
+        recv_len = 0;
+        while(recv_len < MSG_LEN){
+            ret = 0;
+            if((ret = recv(sock_fd ,massage ,MSG_LEN - recv_len,0)) <= 0){
+                perror("recv: 服务器失去响应");
+                exit(0);
+            }
+            recv_len += ret;
         }
         //printf("收到:%s\n",massage);
-        cJSON *root = cJSON_Parse(massage);
-        cJSON *item = cJSON_GetObjectItem(root ,"type");
+        root = cJSON_Parse(massage);
+        item = cJSON_GetObjectItem(root ,"type");
         switch(item -> valuestring[0]){
             case 'A' :
                 Friends_Srv_RecvAdd(massage);

@@ -18,26 +18,38 @@
 #include "../Common/List.h"
 #include "../Persistence/Friends_Persist.h"
 #define LISTEN_NUM 12 //连接请求队列长度
-
+#define MSG_LEN 1024
 online_t *OnlineList;
-static char buf[1024];
+//static char buf[1024];
 void * thread(void *arg){
-    int client_fd = (int)arg;
+    char buf[MSG_LEN];
+    int ret ,recv_len;
+    cJSON *root ,*item;
+    char choice[3];
+    int client_fd = (int)(long)arg;
     while(1){
-        if(recv(client_fd , (void *)buf , sizeof(buf) , 0) <= 0){
-            int uid = Account_Srv_ChIsOnline(-1 , 0 ,client_fd);
-            if(uid != -1){
-                Account_Srv_SendIsOnline(uid ,0);
-                //向在线好友发送下线通知
+        recv_len = 0;
+        while(recv_len < MSG_LEN){
+            ret = 0;
+            if((ret = recv(client_fd , buf , MSG_LEN - recv_len , 0)) <= 0){
+                int uid = Account_Srv_ChIsOnline(-1 , 0 ,client_fd);
+                if(uid != -1){
+                    Account_Srv_SendIsOnline(uid ,0);
+                    //向在线好友发送下线通知
+                }
+                perror("recv");
+                return NULL;
             }
-            perror("recv");
-            return NULL;
+            recv_len += ret;
+            printf("recv_len = %d\n",recv_len);
         }
-        cJSON *root = cJSON_Parse(buf);
-        cJSON *item = cJSON_GetObjectItem(root,"type");
-        //printf("收到: sockfd = %d\n%s\n",client_fd,buf);
+        root = cJSON_Parse(buf);
+        item = cJSON_GetObjectItem(root,"type");
+        strcpy(choice ,item -> valuestring);
+        cJSON_Delete(root);
+       // printf("收到: sockfd = %d\n%s\n",client_fd,buf);
 
-        switch(item -> valuestring[0]){
+        switch(choice[0]){
             case 'L' :
                 //登录
                 Account_Srv_Login(client_fd , buf);
@@ -112,7 +124,7 @@ void Connect(){
             exit(0);
         }
         pthread_t thid;
-        pthread_create(&thid , NULL , thread ,(void *)client_fd);
+        pthread_create(&thid , NULL , thread ,(void *)(long)client_fd);
     }
     
 }
