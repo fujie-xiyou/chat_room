@@ -15,11 +15,14 @@
 #include"../Common/cJSON.h"
 #include"../Common/List.h"
 #include"../Service/Friends_Srv.h"
+#include"../Service/Group_Srv.h"
 #define MSG_LEN 1024
 extern int gl_uid;
 extern int sock_fd;
 extern friends_t *FriendsList;
+extern group_t *GroupList;
 private_msg_t *PriMsgList;
+group_msg_t *GroMsgList;
 int Chat_Srv_RecvFile(const char *JSON){
     char code_out[650] ,buf[900];
     memset(buf ,0,sizeof(buf));
@@ -109,6 +112,7 @@ int Chat_Srv_SendFile(const char *filename ,int fuid){
 }
 void Chat_Srv_InitList(){
     List_Init(PriMsgList ,private_msg_t);
+    List_Init(GroMsgList ,group_msg_t);
 }
 void Chat_Srv_RecvPrivate(const char *JSON){
     private_msg_t *NewMsg = (private_msg_t *)malloc(sizeof(private_msg_t));
@@ -132,9 +136,39 @@ void Chat_Srv_RecvPrivate(const char *JSON){
     List_AddTail(PriMsgList ,curPos ,NewMsg);
     printf("\n%s 发来一条消息\n",NewMsg->name);
 }
+
+void Chat_Srv_RecvGroup(const char *JSON){
+    group_msg_t *NewMsg = 
+        (group_msg_t *)malloc(sizeof(group_msg_t));
+    cJSON *root = cJSON_Parse(JSON);
+    cJSON *item = cJSON_GetObjectItem(root ,"from_uid");
+    NewMsg->from_uid = item -> valueint;
+    item = cJSON_GetObjectItem(root ,"to_gid");
+    NewMsg -> gid = item -> valueint;
+    item = cJSON_GetObjectItem(root ,"msg");
+    strcpy(NewMsg->msg , item -> valuestring);
+    item = cJSON_GetObjectItem(root ,"time");
+    strcpy(NewMsg->time , item -> valuestring);
+    item = cJSON_GetObjectItem(root,"uname");
+    strcpy(NewMsg -> uname ,item -> valuestring);
+    group_t * g;
+    List_ForEach(GroupList ,g){
+        if(g->gid == NewMsg->gid){
+            strcpy(NewMsg->gname ,g->name);
+            (g->NewMsgNum) ++;
+        }
+    }
+    NewMsg->next =NULL;
+    cJSON_Delete(root);
+    group_msg_t *curPos;
+    List_AddTail(GroMsgList ,curPos ,NewMsg);
+    printf("\n群聊 %s 有一条新消息\n",NewMsg->gname);
+}
+
 int Chat_Srv_SendPrivate(int to_uid ,const char * msg){
     int rtn = 1;
-    private_msg_t *NewMsg = (private_msg_t *)malloc(sizeof(private_msg_t));
+    private_msg_t *NewMsg = 
+        (private_msg_t *)malloc(sizeof(private_msg_t));
     user_date_t Srvdate = DateNow();
     user_time_t Srvtime = TimeNow();
     char Srvdatetime[25];
@@ -164,4 +198,82 @@ int Chat_Srv_SendPrivate(int to_uid ,const char * msg){
     cJSON_Delete(root);
     free(out);
     return rtn;
+}
+int Chat_Srv_SendGroup(int to_gid ,const char * msg){
+    int rtn = 1;
+    group_msg_t *NewMsg = 
+        (group_msg_t *)malloc(sizeof(group_msg_t));
+    NewMsg -> gid = to_gid;
+    user_date_t Srvdate = DateNow();
+    user_time_t Srvtime = TimeNow();
+    char Srvdatetime[25];
+    sprintf(Srvdatetime ,"%04d-%02d-%02d %02d:%02d:%02d",
+            Srvdate.year ,Srvdate.month ,Srvdate.day,
+            Srvtime.hour ,Srvtime.minute ,Srvtime.second);
+    strcpy(NewMsg->time ,Srvdatetime);
+    NewMsg->from_uid = gl_uid;
+    strcpy(NewMsg->msg ,msg);
+    NewMsg -> next = NULL;
+    group_msg_t *m;
+    List_AddTail(GroMsgList ,m ,NewMsg);    
+    cJSON *root = cJSON_CreateObject();
+    cJSON *item = cJSON_CreateString("p");
+    cJSON_AddItemToObject(root ,"type" ,item);
+    item = cJSON_CreateNumber(gl_uid);
+    cJSON_AddItemToObject(root ,"from_uid" ,item);
+    item = cJSON_CreateNumber(to_gid);
+    cJSON_AddItemToObject(root ,"to_gid" ,item);
+    item = cJSON_CreateString(msg);
+    cJSON_AddItemToObject(root ,"msg" ,item);
+    char *out = cJSON_Print(root);
+    if(send(sock_fd ,(void *)out ,MSG_LEN ,0) <= 0){
+        printf("服务器失去响应\n");
+        rtn = 0;
+    }
+    cJSON_Delete(root);
+    free(out);
+    return rtn;
+}
+void Chat_Srv_ShowPrivateRec(const char *JSON){
+    private_msg_t *NewMsg = (private_msg_t *)malloc(sizeof(private_msg_t));
+    cJSON *root = cJSON_Parse(JSON);
+    cJSON *item = cJSON_GetObjectItem(root ,"from_uid");
+    NewMsg->from_uid = item -> valueint;
+    item = cJSON_GetObjectItem(root ,"msg");
+    strcpy(NewMsg->msg , item -> valuestring);
+    item = cJSON_GetObjectItem(root ,"time");
+    strcpy(NewMsg->time , item -> valuestring);
+    friends_t * f;
+    List_ForEach(FriendsList ,f){
+        if(f->uid == NewMsg->from_uid){
+            strcpy(NewMsg->name ,f->name);
+            (f->NewMsgNum) ++;
+        }
+    }
+    NewMsg->next =NULL;
+    cJSON_Delete(root);
+    if(NewMsg -> from_uid == gl_uid){
+        printf("\t\e[32m%s\e[0m ",NewMsg->time);
+        printf("我\n");
+        printf("\t  \e[1m%s\e[0m\n",NewMsg -> msg);
+    }
+    else{
+        printf("\t\e[31m%s\e[0m ",NewMsg->time);
+        printf("%s\n",NewMsg -> name);
+        printf("\t  \e[1m%s\e[0m\n",NewMsg -> msg);
+    }
+}
+void Chat_Srv_GetPrivateRec(int fuid){
+    cJSON *root = cJSON_CreateObject();
+    cJSON_AddStringToObject(root ,"type" ,"E");
+    cJSON_AddNumberToObject(root ,"uid" ,gl_uid);
+    cJSON_AddNumberToObject(root ,"fuid" ,fuid);
+    char *out = cJSON_Print(root);
+    cJSON_Delete(root);
+    if(send(sock_fd ,(void *)out ,MSG_LEN ,0) <= 0){
+        printf("服务器失去响应\n");
+    }
+    free(out);
+    system("clear");
+    sleep(1);
 }

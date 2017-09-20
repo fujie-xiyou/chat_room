@@ -1,15 +1,15 @@
 /*************************************************************************
-	>    File Name: Chat_UI.h
+	>    File Name: Group_UI.h
 	>       Author: fujie
 	>         Mail: fujie.me@qq.com
-	> Created Time: 2017年08月16日 星期三 08时05分42秒
+	> Created Time: 2017年09月08日 星期五 12时07分16秒
  ************************************************************************/
 
-#ifndef _CHAT_UI_H
-#define _CHAT_UI_H
+#ifndef _GROUP_UI_H
+#define _GROUP_UI_H
+void Group_UI_ShowList();
 
-void Chat_UI_Private();
+void Group_UI_Create();
 
-void Chat_UI_Group();
-
+void Group_UI_AddMember(int gid);
 #endif

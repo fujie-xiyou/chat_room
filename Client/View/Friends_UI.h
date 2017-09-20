@@ -14,5 +14,8 @@ void Friends_UI_Add();
 
 void Friends_UI_Apply();
 
+void Friends_UI_ShowApply();
+
+//void Fr
 
 #endif

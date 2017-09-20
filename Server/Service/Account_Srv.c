@@ -68,13 +68,14 @@ int Account_Srv_ChIsOnline(int uid ,int is_online ,int sock_fd){
         curPos = (online_t *)malloc(sizeof(online_t));
         curPos -> uid = uid;
         curPos -> sock_fd = sock_fd;
+        curPos -> next = NULL;
         List_AddHead(OnlineList ,curPos);
         rtn = 1;
     }else{
         List_ForEach(OnlineList ,curPos){
             if(curPos -> sock_fd == sock_fd){
                 uid = rtn = curPos -> uid;
-                List_FreeNode(curPos ,online_t);
+                List_FreeNode(OnlineList ,curPos ,online_t);
                 break;
             }
         }
@@ -195,6 +196,8 @@ int Account_Srv_Login(int sock_fd ,char *JSON){
         if(Account_Perst_MatchUserAndPassword(uid ,password)){
             //密码对的
             Account_Srv_ChIsOnline(uid ,1 ,sock_fd);
+            //Chat_Srv_SendOfflienPrivateMsg(uid);//推送离线消息
+            //改到在获取完好友列表后推送离线消息
             item = cJSON_CreateBool(1);
             cJSON_AddItemToObject(root , "res" , item);
             item = cJSON_CreateNumber(uid);

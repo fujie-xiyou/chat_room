@@ -39,5 +39,6 @@ int Account_Perst_AddUser(const char * name ,int sex, const char *password);
   */
 int Account_Perst_MatchUserAndPassword(int uid , const char * password);
 
+char * Account_Perst_GetUserNameFromUid(int uid);
 
 #endif

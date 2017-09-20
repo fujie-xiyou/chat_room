@@ -9,6 +9,7 @@
 #include "Account_Srv.h"
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <pthread.h>
 #include "./Connect.h"
 #include "./Friends_Srv.h"
@@ -78,7 +79,7 @@ int Account_Srv_Out(int uid){
 }
 
 int Account_Srv_SignIn(const char * name ,int sex ,const char * password){
-    char buf[1024];
+    //char buf[1024];
     int rtn;
     cJSON *root = cJSON_CreateObject();
     cJSON *item = cJSON_CreateString("S");
@@ -119,7 +120,7 @@ int Account_Srv_SignIn(const char * name ,int sex ,const char * password){
 }
 int Account_Srv_Login(const char *name , const char *password){
     //printf("进入登录函数\n");
-    char buf[1024];
+    //char buf[1024];
     int rtn;
     cJSON *root = cJSON_CreateObject();
     cJSON *item = cJSON_CreateString("L");
@@ -151,12 +152,14 @@ int Account_Srv_Login(const char *name , const char *password){
         item = cJSON_GetObjectItem(root,"uid");
         rtn = item -> valueint;
         printf("登录成功!请稍候..");
+        fflush(stdout);
+        sleep(2);
     }else{
         item = cJSON_GetObjectItem(root,"reason");
         rtn = 0;
         printf("登录失败: %s",item -> valuestring);
+        getchar();
     }
-    fflush(stdout);
     cJSON_Delete(root);
     /*printf("登录解锁前\n");
     pthread_mutex_unlock(&mutex);

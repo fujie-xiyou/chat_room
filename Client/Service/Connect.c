@@ -14,6 +14,7 @@
 #include "./Chat_Srv.h"
 #include "./Account_Srv.h"
 #include "./Friends_Srv.h"
+#include "./Group_Srv.h"
 #include "../Common/cJSON.h"
 #define MSG_LEN 1024
 
@@ -26,6 +27,7 @@ char massage[MSG_LEN];
 void * thread(void *arg){
     int ret ,recv_len;
     cJSON *root ,*item;
+    if(arg == NULL) arg = NULL;//为了消除警告
     while(1){
         /*
         printf("线程上锁之前\n");
@@ -61,6 +63,10 @@ void * thread(void *arg){
                 //处理私聊消息
                 Chat_Srv_RecvPrivate(massage);
                 break;
+            case 'p':
+                //处理群聊消息
+                Chat_Srv_RecvGroup(massage);
+                break;
             case 'F' :
                 Chat_Srv_RecvFile(massage);
                 //处理文件请求
@@ -78,9 +84,28 @@ void * thread(void *arg){
                 //获取好友列表
                 //主线程处理
                 break;
+            case 'l' :
+                my_mutex = 1;
+                //获取群列表
+                //主线程处理
+                break;
             case 'I' :
                 //好友上下线请求
                 Account_Srv_RecvIsOnline(massage);
+                break;
+            case 'J' :
+                //被邀请加入群聊或创建群聊时接收群信息
+                Group_Srv_Join(massage);
+                break;
+            case 'm' :
+                Group_Srv_ShowMember(massage);
+                break;
+            case 'D' :
+                Group_Srv_Delete(massage);
+                break;
+            case 'E' :
+                Chat_Srv_ShowPrivateRec(massage);
+                break;
         }
         /*
         printf("线程解锁之前\n");

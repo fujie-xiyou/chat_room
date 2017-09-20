@@ -7,10 +7,12 @@
 
 #include<stdio.h>
 #include<string.h>
+#include<mysql/mysql.h>
 #include"./Account_Srv.h"
 #include"./Connect.h"
 #include"./Chat_Srv.h"
 #include"./Group_Srv.h"
+#include"../Persistence/Account_Persist.h"
 #include"../Persistence/Chat_Persist.h"
 #include"../Persistence/Group_Persist.h"
 #include"../Common/Common.h"
@@ -85,8 +87,8 @@ int Chat_Srv_Private(int sock_fd ,const char *JSON){
     return 1;
 }
 int Chat_Srv_Group(int sock_fd ,const char *JSON){
-    int uid ,gid ,to_sock ;
-    char offlist[100] ,str[4];
+    int from_uid ,to_gid ,to_sock ;
+    char offlist[100] = "," ,str[4];
     group_member_t *GroupMember ,*g;
     List_Init(GroupMember ,group_member_t);
     user_date_t Srvdate = DateNow();
@@ -96,19 +98,22 @@ int Chat_Srv_Group(int sock_fd ,const char *JSON){
             Srvdate.year ,Srvdate.month ,Srvdate.day,
             Srvtime.hour ,Srvtime.minute ,Srvtime.second);
     cJSON *root = cJSON_Parse(JSON);
-    cJSON *item = cJSON_GetObjectItem(root ,"uid");
-    uid = item -> valueint;
-    item = cJSON_GetObjectItem(root ,"gid");
-    gid = item -> valueint;
+    cJSON *item = cJSON_GetObjectItem(root ,"from_uid");
+    from_uid = item -> valueint;
+    item = cJSON_GetObjectItem(root ,"to_gid");
+    to_gid = item -> valueint;
     item = cJSON_CreateString(Srvdatetime);
     cJSON_AddItemToObject(root ,"time" ,item);
+    item = cJSON_CreateString(Account_Perst_GetUserNameFromUid(from_uid));
+    cJSON_AddItemToObject(root ,"uname", item);
     char *out = cJSON_Print(root);
     cJSON_Delete(root);
-    Group_Perst_GetGroupMember(GroupMember ,gid);
+    Group_Perst_GetGroupMember(GroupMember ,to_gid);
     List_ForEach(GroupMember ,g){
-        to_sock = Chat_Srv_GetFriendSock(g->uid);
+        if(g -> user_info.uid == from_uid) continue;
+        to_sock = Chat_Srv_GetFriendSock(g -> user_info.uid);
         if(to_sock == -1) {
-            sprintf(str ,"%d,",g->uid);
+            sprintf(str ,"%d,",g->user_info.uid);
             strcat(offlist ,str);
             continue;
         }
@@ -118,7 +123,48 @@ int Chat_Srv_Group(int sock_fd ,const char *JSON){
             return 0;
         }
     }
-    Chat_Perst_Group(uid ,gid ,out ,offlist);
+    Chat_Perst_Group(from_uid ,to_gid ,out ,offlist);
     free(out);
     return 1;
+}
+
+void Chat_Srv_SendOfflienPrivateMsg(int uid){
+    MYSQL_RES *res = Chat_Perst_GetOfflinePrivateMsg(uid);
+    if(res == NULL) return;
+    MYSQL_ROW row;
+    int to_sock = Chat_Srv_GetFriendSock(uid);
+    while((row = mysql_fetch_row(res))){
+        if(send(to_sock ,row[0] ,MSG_LEN ,0) <= 0){
+            perror("send:");
+            continue;
+        }
+    }
+    mysql_free_result(res);
+}
+
+void Chat_Srv_SendPrivateRes(int sock_fd ,const char *JSON){
+    MYSQL_RES *res = NULL;
+    MYSQL_ROW row;
+    cJSON *root = cJSON_Parse(JSON);
+    cJSON *item = cJSON_GetObjectItem(root ,"uid");
+    int uid = item -> valueint;
+    item = cJSON_GetObjectItem(root ,"fuid");
+    int fuid = item -> valueint;
+    cJSON_Delete(root);
+    res = Chat_Perst_GetPrivateRec(uid ,fuid);
+    while((row = mysql_fetch_row(res))){
+        root = cJSON_Parse(row[0]);
+        item = cJSON_GetObjectItem(root ,"type");
+        strcpy(item -> valuestring,"E");
+        char *out = cJSON_Print(root);
+        cJSON_Delete(root);
+        if(send(sock_fd ,(void *)out ,MSG_LEN ,0) <= 0){
+            perror("send:");
+            free(out);
+            continue;
+        }
+        free(out);
+    }
+    mysql_free_result(res);
+
 }

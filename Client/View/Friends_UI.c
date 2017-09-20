@@ -14,7 +14,7 @@
 extern friends_t *FriendsList;
 extern int PriMsgNum;
 extern int gl_uid;
-int f_num = 0 ,online_num = 0 ,g_num = 0 ,a_num = 0;
+int f_num = 0 ,online_num = 0 ,a_num = 0;
 void Friends_UI_ShowList(){
     friends_t *curPos = NULL;
     printf("▶ 我的好友(%d/%d)\n",online_num ,f_num);
@@ -32,26 +32,24 @@ void Friends_UI_ShowList(){
         f_num ++;
         if(curPos->is_online) online_num ++;
         sprintf(is_msg[0],"(\e[31m%d\e[0m)" ,curPos -> NewMsgNum);
-    printf("   %s %s%s\e[0m %s %s %s\n" ,
+        printf("   %s %s%s\e[0m %s %s %s\n" ,
             is_online[curPos->is_online] ,
             is_vip[curPos->is_vip],
             curPos -> name ,sex[curPos->sex] ,
             is_follow[curPos->is_follow],
             is_msg[(curPos->NewMsgNum == 0)]);
     }
-    printf("▶ 我的群聊(%d)\n" ,g_num);
+
+}
+void Friends_UI_ShowApply(){
     //打印群聊列表
     printf("▶ 申请列表(%d)\n" ,a_num);
     a_num = 0;
+    friends_t *curPos;
     List_ForEach(FriendsList ,curPos){
         if(curPos -> state != 0 || curPos -> uid == gl_uid) continue;
         printf("   %s 申请加你为好友\n",curPos->name);
     }
-    printf( "--------------------------------\n");
-    printf( "1.选择好友|2.选择群聊|3.处理申请\n"
-            "4.添加好友|5.资料修改|6.注销登录\n");
-    printf( "--------------------------------\n"
-            "功能选择:");
 }
 
 
@@ -83,7 +81,7 @@ void Friends_UI_Apply(){
             f -> state = 1;
         }else if(choice == 'n'){
             Friends_Srv_Apply(f->uid ,gl_uid ,0);
-            List_FreeNode(f ,friends_t);
+            List_FreeNode(FriendsList ,f ,friends_t);
         }
     }
 }

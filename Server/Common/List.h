@@ -95,14 +95,19 @@
 
 
 //删除并释放链表结点node，
-#define List_FreeNode(node,list_node_t) {             		\
+#define List_FreeNode(head ,node,list_node_t) {             		\
 			assert(NULL!=node);								\
 			if(node -> next != NULL){				        \
 				list_node_t *temp = node->next;          	\
 				memcpy(node,temp,sizeof(list_node_t)); 		\
 				free(temp); 								\
-			}else{											\
-				free(node);									\
+			}else{                                          \
+                list_node_t *temp = head;                   \
+                while(temp -> next != node)                 \
+                    temp = temp -> next;                    \
+                temp -> next = NULL;                        \
+				free(node);		                            \
+                node = NULL;                                \
 			}												\
 	}
 

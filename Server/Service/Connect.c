@@ -14,6 +14,7 @@
 #include "./Account_Srv.h"
 #include "./Friends_Srv.h"
 #include "./Chat_Srv.h"
+#include "./Group_Srv.h"
 #include "../Common/cJSON.h"
 #include "../Common/List.h"
 #include "../Persistence/Friends_Persist.h"
@@ -41,13 +42,12 @@ void * thread(void *arg){
                 return NULL;
             }
             recv_len += ret;
-            printf("recv_len = %d\n",recv_len);
         }
         root = cJSON_Parse(buf);
         item = cJSON_GetObjectItem(root,"type");
         strcpy(choice ,item -> valuestring);
         cJSON_Delete(root);
-       // printf("收到: sockfd = %d\n%s\n",client_fd,buf);
+        //printf("收到: sockfd = %d\n%s\n",client_fd,buf);
 
         switch(choice[0]){
             case 'L' :
@@ -66,9 +66,17 @@ void * thread(void *arg){
                 //获取好友列表
                 Friends_Srv_GetList(client_fd ,buf);
                 break;
+            case 'g' :
+                //获取群列表
+                Group_Srv_GetList(client_fd ,buf);
+                break;
             case 'P' :
                 //私聊
                 Chat_Srv_Private(client_fd,buf);
+                break;
+            case 'p':
+                //群聊
+                Chat_Srv_Group(client_fd ,buf);
                 break;
             case 'F' :
                 //文件
@@ -79,6 +87,23 @@ void * thread(void *arg){
                 break;
             case 'a':
                 Friends_Srv_Apply(client_fd ,buf);
+                break;
+            case 'c':
+                Group_Srv_Create(client_fd ,buf);
+                break;
+            case 'M' :
+                Group_Srv_AddMember(client_fd ,buf);
+                break;
+            case 'm':
+                Group_Srv_ShowMember(client_fd ,buf);
+                break;
+            case 'Q' :
+                //踢人 退群 解散群
+                Group_Srv_Quit(client_fd ,buf);
+                break;
+            case 'E' :
+                //获取私聊聊天记录
+                Chat_Srv_SendPrivateRes(client_fd ,buf);
                 break;
         }
     }

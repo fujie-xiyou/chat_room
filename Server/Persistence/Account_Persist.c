@@ -69,6 +69,25 @@ int Account_Perst_MatchUserAndPassword(int uid , const char * password){
     else rtn = 0;
     mysql_free_result(res);
     return rtn;
+}
 
+char * Account_Perst_GetUserNameFromUid(int uid){
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    char * rtn = NULL;
+    char SQL[100];
+    sprintf(SQL, "SELECT name FROM account WHERE uid = '%d'" ,uid);
+    if(mysql_real_query(mysql , SQL ,strlen(SQL))){
+        printf("%s\n" ,mysql_error(mysql));
+        return 0;
+    }
+    res = mysql_store_result(mysql);
+    row = mysql_fetch_row(res);
+    if(row){
+        rtn = (char *)malloc(sizeof(char) * 30);
+        strcpy(rtn ,row[0]);
+    }
+    mysql_free_result(res);
+    return rtn;
 }
 

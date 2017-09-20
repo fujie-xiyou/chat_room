@@ -56,7 +56,6 @@ int Friends_Srv_GetList(int sock_fd ,const char *JSON){
             return 0;
         }
         free(out);
-        usleep(50000);
     }
 
     //发送一个uid为0的数据告诉客户端发送完成
@@ -73,7 +72,6 @@ int Friends_Srv_GetList(int sock_fd ,const char *JSON){
         return 0;
     }
     free(out);
-    usleep(50000);
     Account_Srv_SendIsOnline(uid ,1);
     //销毁链表
     List_Destroy(FriendsList ,friends_t);
@@ -91,6 +89,7 @@ int Friends_Srv_GetList(int sock_fd ,const char *JSON){
         return 0;
     }
     free(out);
+    Chat_Srv_SendOfflienPrivateMsg(uid);//推送离线消息
     return 1;
 }
 
@@ -195,4 +194,5 @@ int Friends_Srv_Apply(int sock_fd ,const char *JSON){
         }
         free(out);
     }
+    return 1;
 }

@@ -46,6 +46,5 @@ int Account_UI_Login(){
     scanf("%s",password);
     ffflush();
     return Account_Srv_Login(name , password);
-    getchar();    
     
 }

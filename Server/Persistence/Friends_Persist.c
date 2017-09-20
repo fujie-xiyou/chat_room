@@ -82,6 +82,7 @@ int Friends_Perst_GetFriendInfo(friends_t *Node){
     Node -> is_follow = 0;
     Node -> state = 0;
     mysql_free_result(res);
+    return 1;
 }
 
 

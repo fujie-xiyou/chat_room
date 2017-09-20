@@ -18,7 +18,7 @@ extern int gl_uid;
 extern int sock_fd;
 //extern pthread_mutex_t mutex;
 extern int my_mutex;
-extern int your_mutex;
+//extern int your_mutex;
 extern char massage[1024];
 friends_t *FriendsList;
 
@@ -110,7 +110,7 @@ int Friends_Srv_SendAdd(const char *fname){
     root = cJSON_Parse(massage);
     item = cJSON_GetObjectItem(root,"res");
     int res = item -> valueint;
-    if(res == 1){
+    if(res){
         printf("好友请求发送成功!");
         getchar();
         rtn = 1;
