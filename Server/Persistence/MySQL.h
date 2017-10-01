@@ -14,7 +14,7 @@
 /*
  * 连接数据库
  */
-int MySQL_Connect();
+int MySQL_Connect(const char *host ,const char *user ,const char *pass ,const char *database);
 
 
 /*

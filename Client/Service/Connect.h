@@ -18,7 +18,7 @@
 /*
  * 创建并保持socket连接
  */
-void Connect();
+void Connect(const char *host ,int port);
 
 
 #endif

@@ -1,0 +1,7 @@
+{
+	"port":	1314,
+	"host":	"sql.fujie.bid",
+	"user":	"root",
+	"pass":	"AAA000aaa",
+	"database":	"chat_room"
+}

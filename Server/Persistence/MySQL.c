@@ -10,9 +10,9 @@
 
 MYSQL * mysql;
 
-int MySQL_Connect(){
+int MySQL_Connect(const char *host ,const char *user ,const char *pass ,const char *database){
     mysql = mysql_init(NULL);
-    if(mysql_real_connect(mysql,"sql.fujie.bid","root","AAA000aaa","chat_room",0,NULL,0) == 0){
+    if(mysql_real_connect(mysql,host,user,pass,database,0,NULL,0) == 0){
         return 0;
     }
     return 1;

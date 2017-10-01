@@ -111,7 +111,7 @@ void * thread(void *arg){
 }
 
 
-void Connect(){
+void Connect(int port){
     int sock_fd;
     int client_fd;
     int len;
@@ -122,7 +122,7 @@ void Connect(){
     memset(&serv_addr , 0 ,len);
     memset(&client_addr , 0 , len);
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(1314);
+    serv_addr.sin_port = htons(port);
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     sock_fd = socket(AF_INET , SOCK_STREAM , 0);
     if(sock_fd < 0) {

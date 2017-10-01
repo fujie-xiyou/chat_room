@@ -12,11 +12,11 @@ CC = gcc
 C_FLAGS = -DDEBUG -c -Wall -Wextra -ggdb -ICommon/libb64/include
 
 all: $(C_OBJECTS) 
-	@echo compile...
+	@echo link...
 	$(CC) $(C_OBJECTS) -lm -lpthread -o $(PROGRAM)
 
 .c.o:
-	@echo link$< ...
+	@echo compile $< ...
 	$(CC) $(C_FLAGS) $< -o $@ 
 
 .PHONY:clean

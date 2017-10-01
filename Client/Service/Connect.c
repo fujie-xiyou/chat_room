@@ -117,7 +117,7 @@ void * thread(void *arg){
     }
     return NULL;
 }
-void Connect(){
+void Connect(const char *host ,int port){
     struct sockaddr_in clie_addr;
     //char *out;
     pthread_t thid;
@@ -125,8 +125,8 @@ void Connect(){
    // pthread_cond_init(&cond ,NULL);
     memset(&clie_addr , 0 ,sizeof(struct sockaddr_in));
     clie_addr.sin_family = AF_INET;
-    clie_addr.sin_port = htons(1314);
-    clie_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    clie_addr.sin_port = htons(port);
+    clie_addr.sin_addr.s_addr = inet_addr(host);
     sock_fd = socket(AF_INET , SOCK_STREAM , 0);
     if(sock_fd < 0){
         perror("socket");
