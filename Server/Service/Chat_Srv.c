@@ -27,9 +27,9 @@ void Chat_Srv_File(const char *JSON){
     cJSON *item = cJSON_GetObjectItem(root ,"fuid");
     int fuid = item -> valueint;
     item = cJSON_GetObjectItem(root ,"size");
-    printf("size = %d\n" ,item -> valueint);
+//    printf("size = %d\n" ,item -> valueint);
     item = cJSON_GetObjectItem(root,"con");
-    printf("base64 :\n%s\n",item -> valuestring);
+//    printf("base64 :\n%s\n",item -> valuestring);
     int f_sock_fd = -1;
     online_t *o;
     List_ForEach(OnlineList ,o){

@@ -32,7 +32,7 @@ void * thread(void *arg){
         recv_len = 0;
         while(recv_len < MSG_LEN){
             ret = 0;
-            if((ret = recv(client_fd , buf , MSG_LEN - recv_len , 0)) <= 0){
+            if((ret = recv(client_fd , buf + recv_len , MSG_LEN - recv_len , 0)) <= 0){
                 int uid = Account_Srv_ChIsOnline(-1 , 0 ,client_fd);
                 if(uid != -1){
                     Account_Srv_SendIsOnline(uid ,0);
@@ -41,13 +41,15 @@ void * thread(void *arg){
                 perror("recv");
                 return NULL;
             }
+	    printf("收到 %d 字节  ",ret);
             recv_len += ret;
         }
+	printf("\n");
         root = cJSON_Parse(buf);
         item = cJSON_GetObjectItem(root,"type");
         strcpy(choice ,item -> valuestring);
         cJSON_Delete(root);
-        //printf("收到: sockfd = %d\n%s\n",client_fd,buf);
+//        printf("收到: sockfd = %d\n%s\n",client_fd,buf);
 
         switch(choice[0]){
             case 'L' :
