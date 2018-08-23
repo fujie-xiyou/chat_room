@@ -41,7 +41,7 @@ void * thread(void *arg){
         recv_len = 0;
         while(recv_len < MSG_LEN){
             ret = 0;
-            if((ret = recv(sock_fd ,massage ,MSG_LEN - recv_len,0)) <= 0){
+            if((ret = recv(sock_fd ,massage + recv_len ,MSG_LEN - recv_len,0)) <= 0){
                 perror("recv: 服务器失去响应");
                 exit(0);
             }
