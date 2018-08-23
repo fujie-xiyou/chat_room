@@ -99,6 +99,7 @@ int Chat_Srv_SendFile(const char *filename ,int fuid){
         out = cJSON_Print(root);
         cJSON_Delete(root);
         int ret;
+	printf("%s\n",out);
         if((ret = send(sock_fd ,out,MSG_LEN ,0)) <= 0){
             perror("send");
             free(out);
