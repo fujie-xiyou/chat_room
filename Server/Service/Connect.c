@@ -41,10 +41,8 @@ void * thread(void *arg){
                 perror("recv");
                 return NULL;
             }
-	    printf("收到 %d 字节  ",ret);
             recv_len += ret;
         }
-	printf("\n");
         root = cJSON_Parse(buf);
         item = cJSON_GetObjectItem(root,"type");
         strcpy(choice ,item -> valuestring);

@@ -45,10 +45,8 @@ void * thread(void *arg){
                 perror("recv: 服务器失去响应");
                 exit(0);
             }
-	    printf("收到 %d 字节  ",ret);
             recv_len += ret;
         }
-	printf("\n");
         //printf("收到:%s\n",massage);
         root = cJSON_Parse(massage);
         item = cJSON_GetObjectItem(root ,"type");
