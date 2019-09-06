@@ -22,8 +22,7 @@ make
 最后`./chat_room_cli`<br>
 请先注册一个账号
 ####  演示视频
-%[视频演示](https://www.github.com/fujie-xiyou/Graph-bed/raw/master/小书匠/聊天室.md/聊天室演示.mp4)
-[聊天室演示.mp4](http://file.fujie.bid/%E8%81%8A%E5%A4%A9%E5%AE%A4%E6%BC%94%E7%A4%BA.mp4)
+[聊天室视频演示](https://www.github.com/fujie-xiyou/Graph-bed/raw/master/小书匠/聊天室.md/聊天室演示.mp4)
 ####  项目概述
 - 本项目是一个使用Linux C网络编程技术开发的字符界面聊天室，基本功能有，用户注册登录，添加好友，私聊，创建群聊，邀请好友加入群聊，群聊，聊天记录查看，文件传送等。
 #### 项目设计
