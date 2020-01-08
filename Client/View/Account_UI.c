@@ -13,7 +13,7 @@ int Account_UI_SignIn(){
     char name[30] , password[30];
     int sex;
     printf("请输入要注册的用户名:");
-    scanf("%s",name);
+    scanf("%30s",name);
     ffflush();
     while(1){
         printf("请输入性别(男/女):");

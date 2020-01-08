@@ -37,7 +37,7 @@ void Group_UI_ShowList(){
 void Group_UI_AddMember(int gid){
     char name[30]; 
     printf("请输入要邀请的好友名称:");
-    scanf("%s",name);
+    scanf("%30s",name);
     ffflush();
     friends_t *f;
     List_ForEach(FriendsList ,f){

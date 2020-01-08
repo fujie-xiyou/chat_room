@@ -56,7 +56,7 @@ void Friends_UI_ShowApply(){
 void Friends_UI_Add(){
     char fname[30];
     printf("请输入待添加的好友名:");
-    scanf("%s",fname);
+    scanf("%30s",fname);
     ffflush();
     friends_t *f;
     List_ForEach(FriendsList ,f){
