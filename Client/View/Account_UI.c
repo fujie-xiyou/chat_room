@@ -17,7 +17,7 @@ int Account_UI_SignIn(){
     ffflush();
     while(1){
         printf("请输入性别(男/女):");
-        scanf("%s",password);//懒得再开数组,暂借一下
+        scanf("%30s",password);//懒得再开数组,暂借一下
         ffflush();
         if(strcmp(password ,"男") == 0){
             sex = 1;
