@@ -27,7 +27,7 @@ void Chat_UI_Private(){
     friends_t * f;
     while(1){
         printf("请输入好友用户名:");
-        scanf("%s",fname);
+        scanf("%30s",fname);
         ffflush();
         List_ForEach(FriendsList ,f){
             //printf("f->name = %s\n" ,f->name);
